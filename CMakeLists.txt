@@ -73,7 +73,7 @@ set(HAL_SRC
 	Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_ll_usb.c
 )
 
-#set_source_files_properties(${HAL_SRC} PROPERTIES COMPILE_FLAGS -Wno-unused-parameter)
+set_source_files_properties(${HAL_SRC} PROPERTIES COMPILE_FLAGS "-Wno-pedantic -Wno-unused-parameter")
 
 # ThreadX library sources
 set(THREADX_SRC
@@ -263,10 +263,11 @@ set(WPAN_SRC
 	Middlewares/ST/STM32_WPAN/zigbee/platform/ee.c
 	Middlewares/ST/STM32_WPAN/zigbee/platform/hw_flash.c
 	Middlewares/ST/STM32_WPAN/zigbee/core/src/zigbee_core_wb.c
+	STM32_WPAN/App/app_zigbee.c
+	STM32_WPAN/Target/hw_ipcc.c	
 )
 
-#set_source_files_properties(${WPAN_SRC} PROPERTIES COMPILE_FLAGS -Wno-unused-parameter)
-#set_source_files_properties(Middlewares/ST/netxduo/common/drivers/ethernet/nx_stm32_eth_driver.c PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter -Wno-sign-compare")
+set_source_files_properties(${WPAN_SRC} PROPERTIES COMPILE_FLAGS "-Wno-pedantic -Wno-unused-parameter -Wno-sign-compare")
 
 # ASM sources
 set(ASM_SRC
@@ -287,9 +288,11 @@ set(ASMM_SRC
 	Middlewares/ST/threadx/ports/cortex_m4/gnu/src/tx_timer_interrupt.S
 )	
 
+set_source_files_properties(Core/Src/hw_timerserver.c PROPERTIES COMPILE_FLAGS -Wno-unused-parameter)
+set_source_files_properties(Core/Src/app_entry.c PROPERTIES COMPILE_FLAGS "-Wno-pedantic -Wno-unused-parameter -Wno-unused-function")
+set_source_files_properties(Core/Src/stm_logging.c PROPERTIES COMPILE_FLAGS -Wno-unused-parameter)
 #set_source_files_properties(Core/Src/app_threadx.c PROPERTIES COMPILE_FLAGS -Wno-unused-parameter)
 #set_source_files_properties(AZURE_RTOS/App/app_azure_rtos.c PROPERTIES COMPILE_FLAGS -Wno-unused-parameter)
-#set_source_files_properties(Drivers/BSP/Components/lan8742/lan8742.c PROPERTIES COMPILE_FLAGS -Wno-unused-parameter)
 
 # project source files
 file(GLOB PROJECT_SOURCE_FILES CONFIGURE_DEPENDS Core/Src/*.c)
@@ -297,8 +300,6 @@ file(GLOB PROJECT_SOURCE_FILES CONFIGURE_DEPENDS Core/Src/*.c)
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
 	${PROJECT_SOURCE_FILES}
-	STM32_WPAN/App/app_zigbee.c
-	STM32_WPAN/Target/hw_ipcc.c	
 	${ASM_SRC}
 	${ASMM_SRC}
 	${HAL_SRC}
@@ -310,7 +311,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
-NetXDuo/App
+	NetXDuo/App
 	Core/Inc
 	AZURE_RTOS/App
 	STM32_WPAN/App
@@ -350,6 +351,9 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
 	USE_NUCLEO_64
 	STM32_THREAD_SAFE_STRATEGY=2	
 )
+
+# Disable linker segmentation warning
+target_link_options(${CMAKE_PROJECT_NAME} PRIVATE "LINKER:--no-warn-rwx-segments")
 
 # Add linked libraries
 target_link_libraries(${CMAKE_PROJECT_NAME}

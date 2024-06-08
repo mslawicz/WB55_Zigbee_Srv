@@ -45,7 +45,9 @@ extern "C" {
 
 /* Private defines -----------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#ifndef UNUSED
+#define UNUSED(X) (void)(X)      /* To avoid gcc/g++ warnings */
+#endif /* UNUSED */
 /* USER CODE END PD */
 
 /* Main thread defines -------------------------------------------------------*/
