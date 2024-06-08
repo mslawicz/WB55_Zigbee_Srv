@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "app_threadx.h": "c",
+        "cstdint": "c",
+        "main.h": "c"
+    }
+}
