@@ -122,10 +122,10 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  Error_Handler();
   while (1)
   {
     /* USER CODE END WHILE */
-    Error_Handler();
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
