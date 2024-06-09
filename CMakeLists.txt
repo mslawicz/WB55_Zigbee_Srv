@@ -68,9 +68,6 @@ set(HAL_SRC
 	Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_tim_ex.c
 	Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_uart.c
 	Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_uart_ex.c
-	Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_pcd.c
-	Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_pcd_ex.c
-	Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_ll_usb.c
 )
 
 set_source_files_properties(${HAL_SRC} PROPERTIES COMPILE_FLAGS "-Wno-pedantic -Wno-unused-parameter")
