@@ -100,8 +100,6 @@ void test_thread_entry(ULONG thread_input)
   {
       HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
       tx_thread_sleep(50);  // Sleep for 50 ticks
-      tx_thread_sleep(500);  // Sleep for 500 ticks
-      tx_thread_sleep(50);  // Sleep for 50 ticks
   }
 }
 /* USER CODE END 1 */
