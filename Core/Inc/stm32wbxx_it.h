@@ -52,7 +52,9 @@ void MemManage_Handler(void);
 void BusFault_Handler(void);
 void UsageFault_Handler(void);
 void DebugMon_Handler(void);
+void DMA1_Channel2_IRQHandler(void);
 void TIM1_TRG_COM_TIM17_IRQHandler(void);
+void USART1_IRQHandler(void);
 void HSEM_IRQHandler(void);
 /* USER CODE BEGIN EFP */
 
