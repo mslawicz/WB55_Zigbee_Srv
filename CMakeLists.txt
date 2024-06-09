@@ -288,8 +288,7 @@ set(ASMM_SRC
 set_source_files_properties(Core/Src/hw_timerserver.c PROPERTIES COMPILE_FLAGS -Wno-unused-parameter)
 set_source_files_properties(Core/Src/app_entry.c PROPERTIES COMPILE_FLAGS "-Wno-pedantic -Wno-unused-parameter -Wno-unused-function")
 set_source_files_properties(Core/Src/stm_logging.c PROPERTIES COMPILE_FLAGS -Wno-unused-parameter)
-#set_source_files_properties(Core/Src/app_threadx.c PROPERTIES COMPILE_FLAGS -Wno-unused-parameter)
-#set_source_files_properties(AZURE_RTOS/App/app_azure_rtos.c PROPERTIES COMPILE_FLAGS -Wno-unused-parameter)
+set_source_files_properties(Core/Src/hw_uart.c PROPERTIES COMPILE_FLAGS -Wno-pedantic)
 
 # project source files
 file(GLOB PROJECT_SOURCE_FILES CONFIGURE_DEPENDS Core/Src/*.c)
