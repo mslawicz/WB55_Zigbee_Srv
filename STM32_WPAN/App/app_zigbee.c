@@ -39,6 +39,7 @@
 #include "zcl/general/zcl.onoff.h"
 
 /* USER CODE BEGIN Includes */
+#include "main.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -146,6 +147,21 @@ static struct ZbZclOnOffServerCallbacksT OnOffServerCallbacks_1 =
 static enum ZclStatusCodeT onOff_server_1_off(struct ZbZclClusterT *cluster, struct ZbZclAddrInfoT *srcInfo, void *arg)
 {
   /* USER CODE BEGIN 0 OnOff server 1 off 1 */
+  uint8_t endpoint;
+
+  endpoint = ZbZclClusterGetEndpoint(cluster);
+  if (endpoint == SW1_ENDPOINT) 
+  {  
+    APP_DBG("onOff_server_1_off");
+    HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_RESET);
+    ZbZclAttrIntegerWrite(cluster, ZCL_ONOFF_ATTR_ONOFF, 0);
+  }
+  else
+  {
+    /* unknown endpoint */
+    APP_DBG("onOff_server_1_off failed");
+    return ZCL_STATUS_FAILURE;
+  }
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 0 OnOff server 1 off 1 */
 }
@@ -154,6 +170,21 @@ static enum ZclStatusCodeT onOff_server_1_off(struct ZbZclClusterT *cluster, str
 static enum ZclStatusCodeT onOff_server_1_on(struct ZbZclClusterT *cluster, struct ZbZclAddrInfoT *srcInfo, void *arg)
 {
   /* USER CODE BEGIN 1 OnOff server 1 on 1 */
+  uint8_t endpoint;
+
+  endpoint = ZbZclClusterGetEndpoint(cluster);
+  if (endpoint == SW1_ENDPOINT) 
+  {  
+    APP_DBG("onOff_server_1_on");
+    HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_SET);
+    ZbZclAttrIntegerWrite(cluster, ZCL_ONOFF_ATTR_ONOFF, 1);
+  }
+  else
+  {
+    /* unknown endpoint */
+    APP_DBG("onOff_server_1_on failed");
+    return ZCL_STATUS_FAILURE;
+  }
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 1 OnOff server 1 on 1 */
 }
@@ -162,6 +193,7 @@ static enum ZclStatusCodeT onOff_server_1_on(struct ZbZclClusterT *cluster, stru
 static enum ZclStatusCodeT onOff_server_1_toggle(struct ZbZclClusterT *cluster, struct ZbZclAddrInfoT *srcInfo, void *arg)
 {
   /* USER CODE BEGIN 2 OnOff server 1 toggle 1 */
+  APP_DBG("onOff_server_1_toggle");
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 2 OnOff server 1 toggle 1 */
 }
@@ -404,7 +436,7 @@ static void APP_ZIGBEE_NwkForm(void)
       zigbee_app_info.init_after_join = true;
       APP_DBG("Startup done !\n");
       /* USER CODE BEGIN 3 */
-
+      HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, GPIO_PIN_SET);
       /* USER CODE END 3 */
     }
     else
@@ -413,7 +445,7 @@ static void APP_ZIGBEE_NwkForm(void)
       APP_DBG("Startup failed, attempting again after a short delay (%d ms)", APP_ZIGBEE_STARTUP_FAIL_DELAY);
       zigbee_app_info.join_delay = HAL_GetTick() + APP_ZIGBEE_STARTUP_FAIL_DELAY;
       /* USER CODE BEGIN 4 */
-
+      HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, GPIO_PIN_RESET);
       /* USER CODE END 4 */
     }
   }

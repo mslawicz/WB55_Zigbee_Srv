@@ -88,7 +88,12 @@ void MX_LPUART1_UART_Init(void);
 #define STLINK_TX_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-
+#define LED_B_Pin LD1_Pin
+#define LED_B_GPIO_Port LD1_GPIO_Port
+#define LED_G_Pin LD2_Pin
+#define LED_G_GPIO_Port LD2_GPIO_Port
+#define LED_R_Pin LD3_Pin
+#define LED_R_GPIO_Port LD3_GPIO_Port
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
