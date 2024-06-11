@@ -159,7 +159,7 @@ static enum ZclStatusCodeT onOff_server_1_off(struct ZbZclClusterT *cluster, str
   else
   {
     /* unknown endpoint */
-    APP_DBG("onOff_server_1_off failed");
+    APP_DBG("onOff_server_1_off unknown endpoint");
     return ZCL_STATUS_FAILURE;
   }
   return ZCL_STATUS_SUCCESS;
@@ -182,7 +182,7 @@ static enum ZclStatusCodeT onOff_server_1_on(struct ZbZclClusterT *cluster, stru
   else
   {
     /* unknown endpoint */
-    APP_DBG("onOff_server_1_on failed");
+    APP_DBG("onOff_server_1_on unknown endpoint");
     return ZCL_STATUS_FAILURE;
   }
   return ZCL_STATUS_SUCCESS;
@@ -193,7 +193,34 @@ static enum ZclStatusCodeT onOff_server_1_on(struct ZbZclClusterT *cluster, stru
 static enum ZclStatusCodeT onOff_server_1_toggle(struct ZbZclClusterT *cluster, struct ZbZclAddrInfoT *srcInfo, void *arg)
 {
   /* USER CODE BEGIN 2 OnOff server 1 toggle 1 */
-  APP_DBG("onOff_server_1_toggle");
+  uint8_t endpoint;
+  uint8_t attrVal;
+
+  endpoint = ZbZclClusterGetEndpoint(cluster);
+  if (endpoint == SW1_ENDPOINT) 
+  {  
+    APP_DBG("onOff_server_1_toggle");
+
+    if (ZbZclAttrRead(cluster, ZCL_ONOFF_ATTR_ONOFF, NULL, &attrVal, sizeof(attrVal), false) != ZCL_STATUS_SUCCESS) 
+    {
+      return ZCL_STATUS_FAILURE;
+    }
+    
+    if (attrVal != 0) 
+    {
+      return onOff_server_1_off(cluster, srcInfo, arg);
+    }
+    else
+    {
+      return onOff_server_1_on(cluster, srcInfo, arg);
+    }
+  }
+  else
+  {
+    /* unknown endpoint */
+    APP_DBG("onOff_server_1_toggle unknown endpoint");
+    return ZCL_STATUS_FAILURE;
+  }
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 2 OnOff server 1 toggle 1 */
 }
