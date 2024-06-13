@@ -22,7 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "rgb_driver.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -83,7 +83,8 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
+  RGB_LED_htim = &htim16;
+  RGB_LED_Channel = TIM_CHANNEL_1;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
