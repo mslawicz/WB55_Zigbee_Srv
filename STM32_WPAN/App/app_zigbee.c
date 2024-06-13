@@ -40,6 +40,7 @@
 
 /* USER CODE BEGIN Includes */
 #include "main.h"
+#include "rgb_driver.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -153,8 +154,8 @@ static enum ZclStatusCodeT onOff_server_1_off(struct ZbZclClusterT *cluster, str
   if (endpoint == SW1_ENDPOINT) 
   {  
     APP_DBG("onOff_server_1_off");
-    HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_RESET);
     ZbZclAttrIntegerWrite(cluster, ZCL_ONOFF_ATTR_ONOFF, 0);
+    tx_event_flags_set(&rgb_driver_flags, RGB_SWITCH_OFF, TX_OR);
   }
   else
   {
@@ -176,8 +177,8 @@ static enum ZclStatusCodeT onOff_server_1_on(struct ZbZclClusterT *cluster, stru
   if (endpoint == SW1_ENDPOINT) 
   {  
     APP_DBG("onOff_server_1_on");
-    HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_SET);
     ZbZclAttrIntegerWrite(cluster, ZCL_ONOFF_ATTR_ONOFF, 1);
+    tx_event_flags_set(&rgb_driver_flags, RGB_SWITCH_ON, TX_OR);
   }
   else
   {
