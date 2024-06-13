@@ -45,6 +45,9 @@ uint32_t RGB_LED_Channel;
 uint16_t RGB_bits[NUMBER_OF_BITS];
 
 void check_flags(ULONG flags);
+void set_RGB_LEDs(uint16_t first, uint16_t size, struct RGB RGB_value, uint8_t level);
+HAL_StatusTypeDef send_RGB_data(TIM_HandleTypeDef* htim, uint32_t Channel);
+void turn_off_LEDs(void);
 
 void rgb_driver_thread_entry(ULONG thread_input)
 {
@@ -64,6 +67,14 @@ void rgb_driver_thread_entry(ULONG thread_input)
     }
 
     HAL_GPIO_TogglePin(LED_R_GPIO_Port, LED_R_Pin);
+    //const struct RGB test_RGB = {0x03, 0x0F, 0xAA};
+    //set_RGB_LEDs(0, NUMBER_OF_LEDS, test_RGB, 255);	//set all LEDs to current global color and level
+    //send_RGB_data(RGB_LED_htim, RGB_LED_Channel);	//send data to RGB LED units
+    //HAL_TIM_PWM_Start_DMA(htim, Channel, (uint32_t*)RGB_bits, NUMBER_OF_BITS);
+    //RGB_LED_htim->Instance->CCR1 = 10;
+    //HAL_TIM_PWM_Start(RGB_LED_htim, RGB_LED_Channel);
+    //tx_thread_sleep(2);
+    //HAL_TIM_PWM_Stop(RGB_LED_htim, RGB_LED_Channel);
   }
 }
 
@@ -71,12 +82,15 @@ void check_flags(ULONG flags)
 {
     if(flags & RGB_SWITCH_OFF)
     {
-        HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_RESET);  //XXX test
+        turn_off_LEDs();
     }
 
     if(flags & RGB_SWITCH_ON)
     {
-        HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_SET);  //XXX test
+        set_RGB_LEDs(0, NUMBER_OF_LEDS, RGB_params.color, RGB_params.currentLevel);	//set all LEDs to current global color and level
+        send_RGB_data(RGB_LED_htim, RGB_LED_Channel);	//send data to RGB LED units
     }
 }
 
