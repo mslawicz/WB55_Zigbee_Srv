@@ -23,6 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "rgb_driver.h"
 #include "main.h"
 /* USER CODE END Includes */
 
@@ -33,7 +34,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define TEST_THREAD_STACK_SIZE  1024
+#define RGB_DRV_THREAD_STACK_SIZE  1024
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -43,13 +44,13 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-TX_THREAD test_thread;
-ULONG test_thread_stack[TEST_THREAD_STACK_SIZE];
+TX_THREAD rgb_driver_thread;
+ULONG rgb_driver_thread_stack[RGB_DRV_THREAD_STACK_SIZE];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
-void test_thread_entry(ULONG thread_input);
+
 /* USER CODE END PFP */
 
 /**
@@ -65,7 +66,7 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
   /* USER CODE END App_ThreadX_MEM_POOL */
 
   /* USER CODE BEGIN App_ThreadX_Init */
-  if(tx_thread_create(&test_thread, "test thread", test_thread_entry, 0, test_thread_stack, TEST_THREAD_STACK_SIZE, 15, 15, TX_NO_TIME_SLICE, TX_AUTO_START))
+  if(tx_thread_create(&rgb_driver_thread, "rgb driver thread", rgb_driver_thread_entry, 0, rgb_driver_thread_stack, RGB_DRV_THREAD_STACK_SIZE, 15, 15, TX_NO_TIME_SLICE, TX_AUTO_START))
   {
     Error_Handler();
   }
@@ -93,13 +94,5 @@ void MX_ThreadX_Init(void)
 }
 
 /* USER CODE BEGIN 1 */
-void test_thread_entry(ULONG thread_input)
-{
-  UNUSED(thread_input);
-  while (1)
-  {
-      HAL_GPIO_TogglePin(LED_R_GPIO_Port, LED_R_Pin);
-      tx_thread_sleep(50);  // Sleep for 50 ticks
-  }
-}
+
 /* USER CODE END 1 */
