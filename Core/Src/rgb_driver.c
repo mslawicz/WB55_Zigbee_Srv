@@ -10,9 +10,12 @@ void rgb_driver_thread_entry(ULONG thread_input)
   UNUSED(thread_input);
   ULONG current_flags;
   UINT ret_val;
+
+  tx_event_flags_create(&rgb_driver_flags, "RGB driver flags");
+
   while (1)
   {
-    ret_val = tx_event_flags_get(&rgb_driver_flags, 0xFFFFFFF, TX_OR_CLEAR, &current_flags, 50);
+    ret_val = tx_event_flags_get(&rgb_driver_flags, 0xFFFFFFFF, TX_OR_CLEAR, &current_flags, 50);
     
     if(ret_val == TX_SUCCESS)
     {
