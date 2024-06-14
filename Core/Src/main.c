@@ -410,7 +410,7 @@ static void MX_TIM16_Init(void)
   htim16.Init.Period = 40-1;
   htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim16.Init.RepetitionCounter = 0;
-  htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim16) != HAL_OK)
   {
     Error_Handler();
@@ -525,7 +525,13 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
+{
+  if(htim == RGB_LED_htim)
+  {
+	  HAL_TIM_PWM_Stop_DMA(htim, TIM_CHANNEL_1);
+  }
+}
 /* USER CODE END 4 */
 
 /**
