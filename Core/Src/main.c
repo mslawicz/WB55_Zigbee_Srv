@@ -118,7 +118,8 @@ int main(void)
   MX_TIM16_Init();
   MX_RF_Init();
   /* USER CODE BEGIN 2 */
-
+  RGB_LED_htim->Instance->CCR1 = 4;
+  HAL_TIM_PWM_Start(RGB_LED_htim, RGB_LED_Channel);
   /* USER CODE END 2 */
 
   MX_ThreadX_Init();
@@ -529,7 +530,7 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 {
   if(htim == RGB_LED_htim)
   {
-	  HAL_TIM_PWM_Stop_DMA(htim, TIM_CHANNEL_1);
+	  HAL_TIM_PWM_Stop_DMA(RGB_LED_htim, RGB_LED_Channel);
   }
 }
 /* USER CODE END 4 */
