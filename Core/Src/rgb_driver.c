@@ -43,6 +43,7 @@ struct RGB_Params_t RGB_params =
 TIM_HandleTypeDef* RGB_LED_htim = NULL;
 uint32_t RGB_LED_Channel;
 uint16_t RGB_bits[NUMBER_OF_BITS];
+uint16_t test_buf[] = {30, 20, 10, 15, 25, 10, 25, 10, 25, 15, 10, 15, 15, 10, 0};
 
 void check_flags(ULONG flags);
 void set_RGB_LEDs(uint16_t first, uint16_t size, struct RGB RGB_value, uint8_t level);
@@ -59,7 +60,7 @@ void rgb_driver_thread_entry(ULONG thread_input)
 
   while (1)
   {
-    ret_val = tx_event_flags_get(&rgb_driver_flags, 0xFFFFFFFF, TX_OR_CLEAR, &current_flags, 50);
+    ret_val = tx_event_flags_get(&rgb_driver_flags, 0xFFFFFFFF, TX_OR_CLEAR, &current_flags, 10);
     
     if(ret_val == TX_SUCCESS)
     {
@@ -72,9 +73,7 @@ void rgb_driver_thread_entry(ULONG thread_input)
     //send_RGB_data(RGB_LED_htim, RGB_LED_Channel);	//send data to RGB LED units
     //HAL_TIM_PWM_Start_DMA(htim, Channel, (uint32_t*)RGB_bits, NUMBER_OF_BITS);
     //RGB_LED_htim->Instance->CCR1 = 10;
-    //HAL_TIM_PWM_Start(RGB_LED_htim, RGB_LED_Channel);
-    //tx_thread_sleep(2);
-    //HAL_TIM_PWM_Stop(RGB_LED_htim, RGB_LED_Channel);
+  	HAL_TIM_PWM_Start_DMA(RGB_LED_htim, RGB_LED_Channel, (uint32_t*)test_buf, 15);  
   }
 }
 

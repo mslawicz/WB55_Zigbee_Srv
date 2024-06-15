@@ -118,10 +118,7 @@ int main(void)
   MX_TIM16_Init();
   MX_RF_Init();
   /* USER CODE BEGIN 2 */
-  //RGB_LED_htim->Instance->CCR1 = 4;
-  //HAL_TIM_PWM_Start(RGB_LED_htim, RGB_LED_Channel);
-  static const uint16_t test_buf[] = {30, 20, 10, 15, 25, 35, 0};
-  HAL_TIM_PWM_Start_DMA(RGB_LED_htim, RGB_LED_Channel, (uint32_t*)test_buf, 7);                          
+                        
   /* USER CODE END 2 */
 
   MX_ThreadX_Init();
@@ -418,7 +415,7 @@ static void MX_TIM16_Init(void)
   htim16.Init.Period = 40-1;
   htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim16.Init.RepetitionCounter = 0;
-  htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim16) != HAL_OK)
   {
     Error_Handler();
