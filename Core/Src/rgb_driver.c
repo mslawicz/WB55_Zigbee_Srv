@@ -6,8 +6,8 @@
 #define NUMBER_OF_LEDS	8
 #define NUMBER_OF_BITS		NUMBER_OF_LEDS * 3 * 8 + 1	// number of LEDs * 3 colors * 8 bits plus 1 additional byte for a zero trailing pulse
 #define NUMBER_OF_GROUPS	8
-#define BIT_1_DUTY	27		// 27/40 * 1.25 us = 812 ns
-#define BIT_0_DUTY	13		// 13/40 * 1.25 us = 375 ns
+#define BIT_1_DUTY	52		// 52/80 * 1.25 us = 812 ns (measured 812 ns)
+#define BIT_0_DUTY	26		// 26/80 * 1.25 us = 406 ns (measured 375 ns)
 #define RGB_INIT_LEVEL	20
 
 TX_EVENT_FLAGS_GROUP rgb_driver_flags;
