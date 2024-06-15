@@ -43,7 +43,6 @@ struct RGB_Params_t RGB_params =
 TIM_HandleTypeDef* RGB_LED_htim = NULL;
 uint32_t RGB_LED_Channel;
 uint16_t RGB_bits[NUMBER_OF_BITS];
-uint16_t test_buf[] = {10, 9, 8, 7, 6, 6, 7, 8, 9, 10, 11, 12, 13, 14, 0};
 
 void check_flags(ULONG flags);
 void set_RGB_LEDs(uint16_t first, uint16_t size, struct RGB RGB_value, uint8_t level);
@@ -68,12 +67,10 @@ void rgb_driver_thread_entry(ULONG thread_input)
     }
 
     HAL_GPIO_TogglePin(LED_R_GPIO_Port, LED_R_Pin);
-    //const struct RGB test_RGB = {0x03, 0x30, 0xAA};
-    //set_RGB_LEDs(0, NUMBER_OF_LEDS, test_RGB, 255);	//set all LEDs to current global color and level
-    //send_RGB_data(RGB_LED_htim, RGB_LED_Channel);	//send data to RGB LED units
-    //HAL_TIM_PWM_Start_DMA(htim, Channel, (uint32_t*)RGB_bits, NUMBER_OF_BITS);
-    //RGB_LED_htim->Instance->CCR1 = 10;
-  	HAL_TIM_PWM_Start_DMA(RGB_LED_htim, RGB_LED_Channel, (uint32_t*)test_buf, 15);  
+    const struct RGB test_RGB = {0x03, 0x30, 0xAA};
+    set_RGB_LEDs(0, NUMBER_OF_LEDS, test_RGB, 255);	//set all LEDs to current global color and level
+    send_RGB_data(RGB_LED_htim, RGB_LED_Channel);	//send data to RGB LED units
+  	//HAL_TIM_PWM_Start_DMA(RGB_LED_htim, RGB_LED_Channel, (uint32_t*)test_buf, 15);  
   }
 }
 
@@ -199,9 +196,7 @@ HAL_StatusTypeDef send_RGB_data(TIM_HandleTypeDef* htim, uint32_t Channel)
 {
 	RGB_bits[NUMBER_OF_BITS - 1] = 0;		// the last pulse to be sent must be a PWM zero pulse
 	// send all RGB bits followed by a zero pulse
-	//return HAL_TIM_PWM_Start_DMA(htim, Channel, (uint32_t*)RGB_bits, NUMBER_OF_BITS);
-	RGB_bits[24] = 0;	//XXX test
-	return HAL_TIM_PWM_Start_DMA(htim, Channel, (uint32_t*)RGB_bits, 25);	//XXX test
+	return HAL_TIM_PWM_Start_DMA(htim, Channel, (uint32_t*)RGB_bits, NUMBER_OF_BITS);
 }
 
 // set a number of LEDs to a certain color and level
