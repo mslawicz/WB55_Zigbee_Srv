@@ -4,14 +4,29 @@
 #include "stm32wbxx_hal.h"
 #include "tx_api.h"
 
-#define RGB_SWITCH_OFF    (1 << 0)
-#define RGB_SWITCH_ON     (1 << 1)
+#define RGB_SWITCH_OFF    	(1 << 0)
+#define RGB_SWITCH_ON     	(1 << 1)
+#define RGB_ACTION_REQUEST  (1 << 2)
 
 struct RGB
 {
 	uint8_t R;
 	uint8_t G;
 	uint8_t B;
+};
+
+enum RGB_mode_t
+{
+	RGB_MODE_STATIC,
+	// Mode_CyclingGroupsFast,
+	// Mode_CyclingGroupsSlow,
+	// Mode_CyclingAllFast,
+	// Mode_CyclingAllSlow,
+	// Mode_RandomGroupsFast,
+	// Mode_RandomGroupsSlow,
+	// Mode_RandomAllFast,
+	// Mode_RandomAllSlow,
+	RGB_NUMBER_OF_MODES
 };
 
 struct RGB_Params_t
@@ -22,7 +37,7 @@ struct RGB_Params_t
 	//uint32_t transitionSteps;
 	struct RGB color;
 	struct ZbZclClusterT* cluster;
-	//enum RGB_mode_t mode;
+	enum RGB_mode_t mode;
 	struct ZbZclAddrInfoT* srcInfo;
 	void* arg;
 };

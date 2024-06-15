@@ -34,7 +34,7 @@ struct RGB_Params_t RGB_params =
 		//.targetLevel = RGB_INIT_LEVEL,
 		//.transitionSteps = 0,
 		.color = { 255, 255, 255 },
-		//.mode = Mode_Static,
+		.mode = RGB_MODE_STATIC,
 		.cluster = NULL,
 		.srcInfo = NULL,
 		.arg = NULL
@@ -48,6 +48,7 @@ void check_flags(ULONG flags);
 void set_RGB_LEDs(uint16_t first, uint16_t size, struct RGB RGB_value, uint8_t level);
 HAL_StatusTypeDef send_RGB_data(TIM_HandleTypeDef* htim, uint32_t Channel);
 void turn_off_LEDs(void);
+void RGB_action(void);
 
 void rgb_driver_thread_entry(ULONG thread_input)
 {
@@ -61,14 +62,14 @@ void rgb_driver_thread_entry(ULONG thread_input)
 
   while (1)
   {
-    ret_val = tx_event_flags_get(&rgb_driver_flags, 0xFFFFFFFF, TX_OR_CLEAR, &current_flags, 10);
+    ret_val = tx_event_flags_get(&rgb_driver_flags, 0xFFFFFFFF, TX_OR_CLEAR, &current_flags, TX_WAIT_FOREVER);
     
     if(ret_val == TX_SUCCESS)
     {
         check_flags(current_flags);
     }
 
-    HAL_GPIO_TogglePin(LED_R_GPIO_Port, LED_R_Pin);
+    HAL_GPIO_TogglePin(LED_R_GPIO_Port, LED_R_Pin);	//XXX test
   }
 }
 
@@ -83,10 +84,31 @@ void check_flags(ULONG flags)
     if(flags & RGB_SWITCH_ON)
     {
         HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_SET);  //XXX test
-		/* set global color for test */
+		/* initiate action on next pass */
+		tx_event_flags_set(&rgb_driver_flags, RGB_ACTION_REQUEST, TX_OR);
+    }
+
+	if(flags & RGB_ACTION_REQUEST)
+	{
+		RGB_action();
+	}
+}
+
+void RGB_action(void)
+{
+	switch(RGB_params.mode)
+	{
+		case RGB_MODE_STATIC:
+		/* set static color for all LEDs */
         set_RGB_LEDs(0, NUMBER_OF_LEDS, RGB_params.color, RGB_params.currentLevel);	//set all LEDs to current global color and level
         send_RGB_data(RGB_LED_htim, RGB_LED_Channel);	//send data to RGB LED units
-    }
+		/* one-shot action - no next steps needed */
+		break;
+
+		default:
+		turn_off_LEDs();
+		break;
+	}
 }
 
 //convert color data from xy space to RGB value
