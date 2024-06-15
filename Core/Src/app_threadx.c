@@ -66,10 +66,10 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
   /* USER CODE END App_ThreadX_MEM_POOL */
 
   /* USER CODE BEGIN App_ThreadX_Init */
-  if(tx_thread_create(&rgb_driver_thread, "rgb driver thread", rgb_driver_thread_entry, 0, rgb_driver_thread_stack, RGB_DRV_THREAD_STACK_SIZE, 15, 15, TX_NO_TIME_SLICE, TX_AUTO_START))
-  {
-    Error_Handler();
-  }
+  //if(tx_thread_create(&rgb_driver_thread, "rgb driver thread", rgb_driver_thread_entry, 0, rgb_driver_thread_stack, RGB_DRV_THREAD_STACK_SIZE, 15, 15, TX_NO_TIME_SLICE, TX_AUTO_START))
+  //{
+  //  Error_Handler();
+  //}
   /* USER CODE END App_ThreadX_Init */
 
   return ret;
