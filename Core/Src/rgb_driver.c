@@ -43,7 +43,7 @@ struct RGB_Params_t RGB_params =
 TIM_HandleTypeDef* RGB_LED_htim = NULL;
 uint32_t RGB_LED_Channel;
 uint16_t RGB_bits[NUMBER_OF_BITS];
-uint16_t test_buf[] = {30, 20, 10, 15, 25, 10, 25, 10, 25, 15, 10, 15, 15, 10, 0};
+uint16_t test_buf[] = {10, 9, 8, 7, 6, 6, 7, 8, 9, 10, 11, 12, 13, 14, 0};
 
 void check_flags(ULONG flags);
 void set_RGB_LEDs(uint16_t first, uint16_t size, struct RGB RGB_value, uint8_t level);
