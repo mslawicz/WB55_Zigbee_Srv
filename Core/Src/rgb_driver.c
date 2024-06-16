@@ -9,6 +9,8 @@
 #define BIT_1_DUTY	52		// 52/80 * 1.25 us = 812 ns (measured 812 ns)
 #define BIT_0_DUTY	26		// 26/80 * 1.25 us = 406 ns (measured 375 ns)
 #define RGB_INIT_LEVEL	20
+#define RGB_ON_REQUEST	1
+#define RGB_OFF_REQUEST	2
 
 TX_EVENT_FLAGS_GROUP rgb_driver_flags;
 
@@ -29,7 +31,7 @@ static const uint8_t ColorPattern[7][3] =
 
 struct RGB_Params_t RGB_params =
 {
-		//.OnOff = 0,
+		.onOffRequest = 0,
 		.currentLevel=RGB_INIT_LEVEL,
 		//.targetLevel = RGB_INIT_LEVEL,
 		//.transitionSteps = 0,
@@ -78,12 +80,15 @@ void check_flags(ULONG flags)
     if(flags & RGB_SWITCH_OFF)
     {
         HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_RESET);  //XXX test
-        turn_off_LEDs();
+		RGB_params.onOffRequest = RGB_OFF_REQUEST;
+		/* initiate action on next pass */
+        tx_event_flags_set(&rgb_driver_flags, RGB_ACTION_REQUEST, TX_OR);
     }
 
     if(flags & RGB_SWITCH_ON)
     {
         HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_SET);  //XXX test
+		RGB_params.onOffRequest = RGB_ON_REQUEST;
 		/* initiate action on next pass */
 		tx_event_flags_set(&rgb_driver_flags, RGB_ACTION_REQUEST, TX_OR);
     }
@@ -96,6 +101,20 @@ void check_flags(ULONG flags)
 
 void RGB_action(void)
 {
+	if(RGB_params.onOffRequest == RGB_OFF_REQUEST)
+	{
+		//TODO implement slow turning off
+		turn_off_LEDs();
+		RGB_params.onOffRequest = 0;
+		return;	//TODO return only if LEDs are already off
+	}
+
+	if(RGB_params.onOffRequest == RGB_ON_REQUEST)
+	{
+		//TODO implement slow turning on
+		RGB_params.onOffRequest = 0;
+	}
+
 	switch(RGB_params.mode)
 	{
 		case RGB_MODE_STATIC:
@@ -107,6 +126,7 @@ void RGB_action(void)
 
 		default:
 		turn_off_LEDs();
+		RGB_params.onOffRequest = 0;
 		break;
 	}
 }
