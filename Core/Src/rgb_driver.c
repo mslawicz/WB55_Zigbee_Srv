@@ -31,12 +31,12 @@ static const uint8_t ColorPattern[7][3] =
 
 struct RGB_Params_t RGB_params =
 {
+		.mode = RGB_MODE_STATIC,
 		.onOffRequest = 0,
 		.currentLevel=RGB_INIT_LEVEL,
 		//.targetLevel = RGB_INIT_LEVEL,
 		//.transitionSteps = 0,
 		.color = { 255, 255, 255 },
-		.mode = RGB_MODE_STATIC,
 		.cluster = NULL,
 		.srcInfo = NULL,
 		.arg = NULL

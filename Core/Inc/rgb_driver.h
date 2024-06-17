@@ -31,13 +31,13 @@ enum RGB_mode_t
 
 struct RGB_Params_t
 {
+	enum RGB_mode_t mode;
 	uint8_t onOffRequest;	/* 0, RGB_OFF_REQUEST, RGB_ON_REQUEST */
 	uint8_t currentLevel;
 	//uint8_t targetLevel;
 	//uint32_t transitionSteps;
 	struct RGB color;
 	struct ZbZclClusterT* cluster;
-	enum RGB_mode_t mode;
 	struct ZbZclAddrInfoT* srcInfo;
 	void* arg;
 };
