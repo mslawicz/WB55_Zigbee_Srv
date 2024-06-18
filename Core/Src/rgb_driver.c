@@ -34,7 +34,7 @@ static const uint8_t ColorPattern[7][3] =
 struct RGB_Params_t RGB_params =
 {
 		.mode = RGB_MODE_STATIC,
-		.currentLevel=RGB_INIT_LEVEL,
+		.currentLevel=0,
 		.targetLevel = RGB_INIT_LEVEL,
 		.clientLevel = RGB_INIT_LEVEL,
 		.transitionTime = 0,
@@ -75,6 +75,11 @@ void rgb_driver_thread_entry(ULONG thread_input)
   /* clear all leds on startup */
   turn_off_LEDs();
 
+  // XXX test
+  RGB_params.transitionTime = 5;
+  tx_event_flags_set(&rgb_driver_flags, RGB_SWITCH_ON, TX_OR);
+
+
   while (1)
   {
     ret_val = tx_event_flags_get(&rgb_driver_flags, 0xFFFFFFFF, TX_OR_CLEAR, &current_flags, TX_WAIT_FOREVER);
@@ -102,6 +107,7 @@ void check_flags(ULONG flags)
     if(flags & RGB_SWITCH_ON)
     {
 		RGB_params.targetLevel = RGB_params.clientLevel;
+		set_level_transition_parameters();
         HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_SET);  //XXX test
 		/* initiate action on next pass */
 		tx_event_flags_set(&rgb_driver_flags, RGB_LVL_CHG_REQUEST, TX_OR);
