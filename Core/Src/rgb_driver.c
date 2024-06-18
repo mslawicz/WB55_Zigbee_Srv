@@ -110,6 +110,11 @@ void check_flags(ULONG flags)
 	{
 		RGB_mode_handler();
 	}
+
+	if(flags & RGB_LVL_CHG_REQUEST)
+	{
+		RGB_level_handler();
+	}
 }
 
 void RGB_mode_handler(void)
@@ -147,14 +152,15 @@ void RGB_mode_handler(void)
 void RGB_level_handler(void)
 {
 	uint8_t previous_level = RGB_params.currentLevel;
-	if(RGB_params.currentLevel > RGB_params.targetLevel)
+	if(RGB_params.currentLevel != RGB_params.targetLevel)
 	{
-		/* decrease level */
-		assert(RGB_level_multiplicator == 0.0f);
-		assert(RGB_current_level == 0.0f);
-		RGB_current_level /= RGB_level_multiplicator;
+		assert(RGB_level_multiplicator > 1.0f);
+		assert(RGB_current_level > 0.0f);
+		RGB_current_level = (RGB_params.currentLevel > RGB_params.targetLevel) ?
+							RGB_current_level / RGB_level_multiplicator :
+							RGB_current_level * RGB_level_multiplicator;
 		RGB_params.currentLevel = (uint8_t)RGB_current_level;
-		if(RGB_params.currentLevel > RGB_params.targetLevel)
+		if(RGB_params.currentLevel != RGB_params.targetLevel)
 		{
 			/* not finished yet - request next pass */
 			tx_timer_activate(&level_timer);
