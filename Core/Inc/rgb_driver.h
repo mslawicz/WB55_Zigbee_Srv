@@ -35,6 +35,7 @@ struct RGB_Params_t
 	enum RGB_mode_t mode;
 	uint8_t currentLevel;
 	uint8_t targetLevel;
+	uint8_t clientLevel;		/* last client requested on level */
 	uint16_t transitionTime;	/* level transition time in tens of a second */
 	struct RGB color;
 	struct ZbZclClusterT* cluster;

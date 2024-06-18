@@ -36,6 +36,7 @@ struct RGB_Params_t RGB_params =
 		.mode = RGB_MODE_STATIC,
 		.currentLevel=RGB_INIT_LEVEL,
 		.targetLevel = RGB_INIT_LEVEL,
+		.clientLevel = RGB_INIT_LEVEL,
 		.transitionTime = 0,
 		.color = { 255, 255, 255 },
 		.cluster = NULL,
@@ -91,18 +92,19 @@ void check_flags(ULONG flags)
 {
     if(flags & RGB_SWITCH_OFF)
     {
-		//TODO this code should set RGB_LVL_CHG_REQUEST event
+		RGB_params.targetLevel = 0;
+		set_level_transition_parameters();
         HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_RESET);  //XXX test
 		/* initiate action on next pass */
-        tx_event_flags_set(&rgb_driver_flags, RGB_ACTION_REQUEST, TX_OR);
+        tx_event_flags_set(&rgb_driver_flags, RGB_LVL_CHG_REQUEST, TX_OR);
     }
 
     if(flags & RGB_SWITCH_ON)
     {
-		//TODO this code should set RGB_LVL_CHG_REQUEST event
+		RGB_params.targetLevel = RGB_params.clientLevel;
         HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_SET);  //XXX test
 		/* initiate action on next pass */
-		tx_event_flags_set(&rgb_driver_flags, RGB_ACTION_REQUEST, TX_OR);
+		tx_event_flags_set(&rgb_driver_flags, RGB_LVL_CHG_REQUEST, TX_OR);
     }
 
 	if(flags & RGB_ACTION_REQUEST)
@@ -145,12 +147,38 @@ void RGB_level_handler(void)
 
 	if(RGB_params.currentLevel != RGB_params.targetLevel)
 	{
+		/* apply one step of level adjustment */
 		assert(RGB_level_multiplicator > 1.0f);
 		assert(RGB_current_level > 0.0f);
-		RGB_current_level = (RGB_params.currentLevel > RGB_params.targetLevel) ?
-							RGB_current_level / RGB_level_multiplicator :
-							RGB_current_level * RGB_level_multiplicator;
-		RGB_params.currentLevel = (uint8_t)RGB_current_level;
+
+		if(RGB_params.currentLevel > RGB_params.targetLevel)
+		{
+			/* decrease level */
+			RGB_current_level /= RGB_level_multiplicator;
+			RGB_params.currentLevel = (uint8_t)RGB_current_level;
+			if(RGB_params.currentLevel < RGB_params.targetLevel)
+			{
+				/* current level cannot go below target level */
+				RGB_params.currentLevel = RGB_params.targetLevel;
+			}
+		}
+		else
+		{
+			/* increase level */
+			RGB_current_level *= RGB_level_multiplicator;
+			/* use 16-bit value for overflow prevention */
+			uint16_t new_level = (uint16_t)RGB_current_level;
+			if(new_level > RGB_params.targetLevel)
+			{
+				/* current level cannot go above target level */
+				RGB_params.currentLevel = RGB_params.targetLevel;
+			}
+			else
+			{
+				RGB_params.currentLevel = (uint8_t)new_level;
+			}
+		}
+
 		if(RGB_params.currentLevel != RGB_params.targetLevel)
 		{
 			/* not finished yet - request next pass */
