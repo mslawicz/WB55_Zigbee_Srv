@@ -11,6 +11,7 @@
 #define RGB_INIT_LEVEL	20
 #define RGB_ON_REQUEST	1
 #define RGB_OFF_REQUEST	2
+#define LEVEL_CHANGE_INTERVAL	MS_TO_TICKS(50)
 
 TX_EVENT_FLAGS_GROUP rgb_driver_flags;
 
@@ -45,6 +46,9 @@ struct RGB_Params_t RGB_params =
 TIM_HandleTypeDef* RGB_LED_htim = NULL;
 uint32_t RGB_LED_Channel;
 uint16_t RGB_bits[NUMBER_OF_BITS];
+float RGB_current_level;	/* float value of current level for precise level changing */
+float RGB_level_multiplicator;	/* level multiplicator for a single level change step */
+TX_TIMER level_timer;	/* timer for slow level changing */
 
 void check_flags(ULONG flags);
 void set_RGB_LEDs(uint16_t first, uint16_t size, struct RGB RGB_value, uint8_t level);
@@ -52,6 +56,7 @@ HAL_StatusTypeDef send_RGB_data(TIM_HandleTypeDef* htim, uint32_t Channel);
 void turn_off_LEDs(void);
 void RGB_mode_handler(void);
 void RGB_level_handler(void);
+void level_change_timer_cbk(ULONG param);
 
 void rgb_driver_thread_entry(ULONG thread_input)
 {
@@ -60,6 +65,11 @@ void rgb_driver_thread_entry(ULONG thread_input)
   UINT ret_val;
 
   tx_event_flags_create(&rgb_driver_flags, "RGB driver flags");
+  ret_val = tx_timer_create(&level_timer, "level change timer", level_change_timer_cbk, 0, LEVEL_CHANGE_INTERVAL, 0, TX_NO_ACTIVATE);
+  if(ret_val != TX_SUCCESS)
+  {
+	Error_Handler();
+  }
   /* clear all leds on startup */
   turn_off_LEDs();
 
@@ -80,6 +90,7 @@ void check_flags(ULONG flags)
 {
     if(flags & RGB_SWITCH_OFF)
     {
+		//TODO this code should set RGB_LVL_CHG_REQUEST event
         HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_RESET);  //XXX test
 		RGB_params.onOffRequest = RGB_OFF_REQUEST;
 		/* initiate action on next pass */
@@ -88,6 +99,7 @@ void check_flags(ULONG flags)
 
     if(flags & RGB_SWITCH_ON)
     {
+		//TODO this code should set RGB_LVL_CHG_REQUEST event
         HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_SET);  //XXX test
 		RGB_params.onOffRequest = RGB_ON_REQUEST;
 		/* initiate action on next pass */
@@ -134,7 +146,30 @@ void RGB_mode_handler(void)
 
 void RGB_level_handler(void)
 {
-	
+	uint8_t previous_level = RGB_params.currentLevel;
+	if(RGB_params.currentLevel > RGB_params.targetLevel)
+	{
+		/* decrease level */
+		assert(RGB_level_multiplicator == 0.0f);
+		assert(RGB_current_level == 0.0f);
+		RGB_current_level /= RGB_level_multiplicator;
+		RGB_params.currentLevel = (uint8_t)RGB_current_level;
+		if(RGB_params.currentLevel > RGB_params.targetLevel)
+		{
+			/* not finished yet - request next pass */
+			tx_timer_activate(&level_timer);
+		}
+		else
+		{
+			/* the target level has been reached */
+		}
+	}
+
+	if(RGB_params.currentLevel != previous_level)
+	{
+		/* the level has been changed - refresh LEDs */
+		RGB_mode_handler();
+	}
 }
 
 //convert color data from xy space to RGB value
@@ -382,4 +417,10 @@ void RGB_random_change(uint8_t use_groups, uint32_t noOfSteps)
 	{
 		currentStep = 0;
 	}
+}
+
+void level_change_timer_cbk(ULONG param)
+{
+	UNUSED(param);
+	tx_event_flags_set(&rgb_driver_flags, RGB_LVL_CHG_REQUEST, TX_OR);
 }
