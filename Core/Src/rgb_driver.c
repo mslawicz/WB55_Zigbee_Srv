@@ -34,8 +34,8 @@ struct RGB_Params_t RGB_params =
 		.mode = RGB_MODE_STATIC,
 		.onOffRequest = 0,
 		.currentLevel=RGB_INIT_LEVEL,
-		//.targetLevel = RGB_INIT_LEVEL,
-		//.transitionSteps = 0,
+		.targetLevel = RGB_INIT_LEVEL,
+		.transitionTime = 0,
 		.color = { 255, 255, 255 },
 		.cluster = NULL,
 		.srcInfo = NULL,
@@ -50,7 +50,8 @@ void check_flags(ULONG flags);
 void set_RGB_LEDs(uint16_t first, uint16_t size, struct RGB RGB_value, uint8_t level);
 HAL_StatusTypeDef send_RGB_data(TIM_HandleTypeDef* htim, uint32_t Channel);
 void turn_off_LEDs(void);
-void RGB_action(void);
+void RGB_mode_handler(void);
+void RGB_level_handler(void);
 
 void rgb_driver_thread_entry(ULONG thread_input)
 {
@@ -95,11 +96,11 @@ void check_flags(ULONG flags)
 
 	if(flags & RGB_ACTION_REQUEST)
 	{
-		RGB_action();
+		RGB_mode_handler();
 	}
 }
 
-void RGB_action(void)
+void RGB_mode_handler(void)
 {
 	if(RGB_params.onOffRequest == RGB_OFF_REQUEST)
 	{
@@ -129,6 +130,11 @@ void RGB_action(void)
 		RGB_params.onOffRequest = 0;
 		break;
 	}
+}
+
+void RGB_level_handler(void)
+{
+	
 }
 
 //convert color data from xy space to RGB value
