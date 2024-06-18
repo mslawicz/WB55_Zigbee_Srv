@@ -11,7 +11,8 @@
 #define RGB_INIT_LEVEL	20
 #define RGB_ON_REQUEST	1
 #define RGB_OFF_REQUEST	2
-#define LEVEL_CHANGE_INTERVAL	MS_TO_TICKS(50)
+#define LEVEL_CHANGE_INTERVAL_MS	50
+#define LEVEL_CHANGE_INTERVAL_TICKS	MS_TO_TICKS(LEVEL_CHANGE_INTERVAL_MS)
 
 TX_EVENT_FLAGS_GROUP rgb_driver_flags;
 
@@ -56,6 +57,7 @@ void turn_off_LEDs(void);
 void RGB_mode_handler(void);
 void RGB_level_handler(void);
 void level_change_timer_cbk(ULONG param);
+void set_level_transition_parameters(void);
 
 void rgb_driver_thread_entry(ULONG thread_input)
 {
@@ -64,7 +66,7 @@ void rgb_driver_thread_entry(ULONG thread_input)
   UINT ret_val;
 
   tx_event_flags_create(&rgb_driver_flags, "RGB driver flags");
-  ret_val = tx_timer_create(&level_timer, "level change timer", level_change_timer_cbk, 0, LEVEL_CHANGE_INTERVAL, 0, TX_NO_ACTIVATE);
+  ret_val = tx_timer_create(&level_timer, "level change timer", level_change_timer_cbk, 0, LEVEL_CHANGE_INTERVAL_TICKS, 0, TX_NO_ACTIVATE);
   if(ret_val != TX_SUCCESS)
   {
 	Error_Handler();
@@ -134,6 +136,13 @@ void RGB_mode_handler(void)
 void RGB_level_handler(void)
 {
 	uint8_t previous_level = RGB_params.currentLevel;
+
+	if(RGB_params.transitionTime == 0)
+	{
+		/* single-step transition */
+		RGB_params.currentLevel = RGB_params.targetLevel;
+	}
+
 	if(RGB_params.currentLevel != RGB_params.targetLevel)
 	{
 		assert(RGB_level_multiplicator > 1.0f);
@@ -146,10 +155,6 @@ void RGB_level_handler(void)
 		{
 			/* not finished yet - request next pass */
 			tx_timer_activate(&level_timer);
-		}
-		else
-		{
-			/* the target level has been reached */
 		}
 	}
 
@@ -411,4 +416,27 @@ void level_change_timer_cbk(ULONG param)
 {
 	UNUSED(param);
 	tx_event_flags_set(&rgb_driver_flags, RGB_LVL_CHG_REQUEST, TX_OR);
+}
+
+void set_level_transition_parameters(void)
+{
+	if((RGB_params.transitionTime != 0) && (RGB_params.currentLevel != RGB_params.targetLevel))
+	{
+		uint16_t numb_trans_steps = 100 * RGB_params.transitionTime / LEVEL_CHANGE_INTERVAL_MS;
+		if(numb_trans_steps == 0)
+		{
+			/* number of transition steps must be > 0 */
+			numb_trans_steps = 1;
+		}
+		uint8_t delta = (RGB_params.currentLevel > RGB_params.targetLevel) ?
+						RGB_params.currentLevel - RGB_params.targetLevel :
+						RGB_params.targetLevel - RGB_params.currentLevel;
+		RGB_level_multiplicator = powf((float)delta, 1.0f / (float)numb_trans_steps);
+		RGB_current_level = (float)RGB_params.currentLevel;
+		if(RGB_current_level < 1.0f)
+		{
+			/* this variable must not be 0 on startup of transition */
+			RGB_current_level = 1.0f;
+		}					
+	}
 }
