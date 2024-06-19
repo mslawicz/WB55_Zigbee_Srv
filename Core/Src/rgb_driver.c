@@ -90,7 +90,7 @@ void rgb_driver_thread_entry(ULONG thread_input)
   tx_thread_sleep(200);
   RGB_params.transitionTime = 30;	//3 seconds
   RGB_params.targetLevel = 30;
-  RGB_params.mode = RGB_MODE_CYCLIC_GR_FAST;
+  RGB_params.mode = RGB_MODE_CYCLIC_ALL_FAST;
   tx_event_flags_set(&rgb_driver_flags, RGB_SWITCH_ON, TX_OR);
 
 
@@ -156,6 +156,24 @@ void RGB_mode_handler(void)
 		RGB_cyclic_change(TRUE, 100);
 		isCyclic = TRUE;
 		break;
+
+		case RGB_MODE_CYCLIC_GR_SLOW:
+		/* cyclic group slow */
+		RGB_cyclic_change(TRUE, 1000);
+		isCyclic = TRUE;
+		break;		
+
+		case RGB_MODE_CYCLIC_ALL_FAST:
+		/* cyclic all fast */
+		RGB_cyclic_change(FALSE, 100);
+		isCyclic = TRUE;
+		break;
+
+		case RGB_MODE_CYCLIC_ALL_SLOW:
+		/* cyclic all slow */
+		RGB_cyclic_change(FALSE, 1000);
+		isCyclic = TRUE;
+		break;				
 
 		default:
 		turn_off_LEDs();

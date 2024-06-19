@@ -20,9 +20,9 @@ enum RGB_mode_t
 {
 	RGB_MODE_STATIC,
 	RGB_MODE_CYCLIC_GR_FAST,	//cyclic group fast
-	// Mode_CyclingGroupsSlow,
-	// Mode_CyclingAllFast,
-	// Mode_CyclingAllSlow,
+	RGB_MODE_CYCLIC_GR_SLOW,	//cyclic group slow
+	RGB_MODE_CYCLIC_ALL_FAST,	//cyclic all fast
+	RGB_MODE_CYCLIC_ALL_SLOW,	//cyclic all slow
 	// Mode_RandomGroupsFast,
 	// Mode_RandomGroupsSlow,
 	// Mode_RandomAllFast,
