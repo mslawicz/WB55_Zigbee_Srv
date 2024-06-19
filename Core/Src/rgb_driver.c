@@ -8,7 +8,7 @@
 #define NUMBER_OF_GROUPS	8
 #define BIT_1_DUTY	52		// 52/80 * 1.25 us = 812 ns (measured 812 ns)
 #define BIT_0_DUTY	26		// 26/80 * 1.25 us = 406 ns (measured 375 ns)
-#define RGB_INIT_LEVEL	20
+#define RGB_INIT_LEVEL	50
 #define RGB_ON_REQUEST	1
 #define RGB_OFF_REQUEST	2
 #define LEVEL_CHANGE_INTERVAL_MS	50
@@ -76,8 +76,10 @@ void rgb_driver_thread_entry(ULONG thread_input)
   turn_off_LEDs();
 
   // XXX test
-  RGB_params.transitionTime = 5;
-  tx_event_flags_set(&rgb_driver_flags, RGB_SWITCH_ON, TX_OR);
+  tx_thread_sleep(200);
+  RGB_params.currentLevel = 100;
+  RGB_params.transitionTime = 50;	//5 seconds
+  tx_event_flags_set(&rgb_driver_flags, RGB_SWITCH_OFF, TX_OR);
 
 
   while (1)
@@ -145,6 +147,8 @@ void RGB_level_handler(void)
 {
 	uint8_t previous_level = RGB_params.currentLevel;
 
+	tx_timer_deactivate(&level_timer);
+
 	if(RGB_params.transitionTime == 0)
 	{
 		/* single-step transition */
@@ -188,7 +192,12 @@ void RGB_level_handler(void)
 		if(RGB_params.currentLevel != RGB_params.targetLevel)
 		{
 			/* not finished yet - request next pass */
-			tx_timer_activate(&level_timer);
+			tx_timer_change(&level_timer, LEVEL_CHANGE_INTERVAL_TICKS, 0);
+			UINT status = tx_timer_activate(&level_timer);
+			if(status != TX_SUCCESS)
+			{
+				Error_Handler();
+			}
 		}
 	}
 
