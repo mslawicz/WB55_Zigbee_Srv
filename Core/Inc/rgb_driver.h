@@ -19,7 +19,7 @@ struct RGB
 enum RGB_mode_t
 {
 	RGB_MODE_STATIC,
-	// Mode_CyclingGroupsFast,
+	RGB_MODE_CYCLIC_GR_FAST,	//cyclic group fast
 	// Mode_CyclingGroupsSlow,
 	// Mode_CyclingAllFast,
 	// Mode_CyclingAllSlow,

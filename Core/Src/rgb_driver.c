@@ -13,6 +13,8 @@
 #define RGB_OFF_REQUEST	2
 #define LEVEL_CHANGE_INTERVAL_MS	50
 #define LEVEL_CHANGE_INTERVAL_TICKS	MS_TO_TICKS(LEVEL_CHANGE_INTERVAL_MS)
+#define MODE_INTERVAL_MS	50
+#define MODE_INTERVAL_TICKS	MS_TO_TICKS(MODE_INTERVAL_MS)
 
 TX_EVENT_FLAGS_GROUP rgb_driver_flags;
 
@@ -50,6 +52,7 @@ uint16_t RGB_bits[NUMBER_OF_BITS];
 float RGB_current_level;	/* float value of current level for precise level changing */
 float RGB_level_multiplicator;	/* level multiplicator for a single level change step */
 TX_TIMER level_timer;	/* timer for slow level changing */
+TX_TIMER mode_timer;	/* timer for cyclic modes handling */
 
 void check_flags(ULONG flags);
 void set_RGB_LEDs(uint16_t first, uint16_t size, struct RGB RGB_value, uint8_t level);
@@ -59,6 +62,9 @@ void RGB_mode_handler(void);
 void RGB_level_handler(void);
 void level_change_timer_cbk(ULONG param);
 void set_level_transition_parameters(void);
+UINT start_timer(TX_TIMER *timer_ptr, ULONG initial_ticks);
+void RGB_cyclic_change(uint8_t use_groups, uint32_t noOfSteps);
+void mode_timer_cbk(ULONG param);
 
 void rgb_driver_thread_entry(ULONG thread_input)
 {
@@ -72,12 +78,20 @@ void rgb_driver_thread_entry(ULONG thread_input)
   {
 	Error_Handler();
   }
+  ret_val = tx_timer_create(&mode_timer, "RGB mode timer", mode_timer_cbk, 0, MODE_INTERVAL_TICKS, 0, TX_NO_ACTIVATE);
+  if(ret_val != TX_SUCCESS)
+  {
+	Error_Handler();
+  }  
   /* clear all leds on startup */
   turn_off_LEDs();
 
   // XXX test
   tx_thread_sleep(200);
   RGB_params.transitionTime = 30;	//3 seconds
+  RGB_params.targetLevel = 30;
+  RGB_params.mode = RGB_MODE_CYCLIC_GR_FAST;
+  tx_event_flags_set(&rgb_driver_flags, RGB_SWITCH_ON, TX_OR);
 
 
   while (1)
@@ -126,6 +140,8 @@ void check_flags(ULONG flags)
 
 void RGB_mode_handler(void)
 {
+	uint8_t isCyclic = FALSE;
+
 	switch(RGB_params.mode)
 	{
 		case RGB_MODE_STATIC:
@@ -135,17 +151,30 @@ void RGB_mode_handler(void)
 		/* one-shot action - no next steps needed */
 		break;
 
+		case RGB_MODE_CYCLIC_GR_FAST:
+		/* cyclic group fast */
+		RGB_cyclic_change(TRUE, 100);
+		isCyclic = TRUE;
+		break;
+
 		default:
 		turn_off_LEDs();
 		break;
+	}
+
+	if(isCyclic)
+	{
+		start_timer(&mode_timer, MODE_INTERVAL_TICKS);
+	}
+	else
+	{
+		tx_timer_deactivate(&mode_timer);
 	}
 }
 
 void RGB_level_handler(void)
 {
 	uint8_t previous_level = RGB_params.currentLevel;
-
-	tx_timer_deactivate(&level_timer);
 
 	if(RGB_params.transitionTime == 0)
 	{
@@ -190,8 +219,7 @@ void RGB_level_handler(void)
 		if(RGB_params.currentLevel != RGB_params.targetLevel)
 		{
 			/* not finished yet - request next pass */
-			tx_timer_change(&level_timer, LEVEL_CHANGE_INTERVAL_TICKS, 0);
-			UINT status = tx_timer_activate(&level_timer);
+			UINT status = start_timer(&level_timer, LEVEL_CHANGE_INTERVAL_TICKS);
 			if(status != TX_SUCCESS)
 			{
 				Error_Handler();
@@ -480,4 +508,17 @@ void set_level_transition_parameters(void)
 			RGB_current_level = 1.0f;
 		}					
 	}
+}
+
+/* start one-shot timer with the given initial ticks */
+UINT start_timer(TX_TIMER *timer_ptr, ULONG initial_ticks)
+{
+	tx_timer_change(timer_ptr, initial_ticks, 0);
+	return tx_timer_activate(timer_ptr);
+}
+
+void mode_timer_cbk(ULONG param)
+{
+	UNUSED(param);
+	tx_event_flags_set(&rgb_driver_flags, RGB_ACTION_REQUEST, TX_OR);
 }
