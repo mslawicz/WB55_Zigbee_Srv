@@ -77,9 +77,7 @@ void rgb_driver_thread_entry(ULONG thread_input)
 
   // XXX test
   tx_thread_sleep(200);
-  RGB_params.currentLevel = 100;
-  RGB_params.transitionTime = 50;	//5 seconds
-  tx_event_flags_set(&rgb_driver_flags, RGB_SWITCH_OFF, TX_OR);
+  RGB_params.transitionTime = 30;	//3 seconds
 
 
   while (1)
