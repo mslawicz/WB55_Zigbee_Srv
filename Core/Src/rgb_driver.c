@@ -91,7 +91,7 @@ void rgb_driver_thread_entry(ULONG thread_input)
   tx_thread_sleep(200);
   RGB_params.transitionTime = 30;	//3 seconds
   RGB_params.targetLevel = 30;
-  RGB_params.mode = RGB_MODE_RANDOM_GR_FAST;
+  RGB_params.mode = RGB_MODE_RANDOM_ALL_FAST;
   tx_event_flags_set(&rgb_driver_flags, RGB_SWITCH_ON, TX_OR);
 
 
@@ -181,7 +181,25 @@ void RGB_mode_handler(void)
 		/* random group fast */
 		RGB_random_change(TRUE, 100);
 		isCyclic = TRUE;
-		break;					
+		break;
+
+		case RGB_MODE_RANDOM_GR_SLOW:
+		/* random group slow */
+		RGB_random_change(TRUE, 1000);
+		isCyclic = TRUE;
+		break;
+
+		case RGB_MODE_RANDOM_ALL_FAST:
+		/* random all fast */
+		RGB_random_change(FALSE, 100);
+		isCyclic = TRUE;
+		break;
+
+		case RGB_MODE_RANDOM_ALL_SLOW:
+		/* random all slow */
+		RGB_random_change(FALSE, 1000);
+		isCyclic = TRUE;
+		break;						
 
 		default:
 		turn_off_LEDs();
@@ -190,10 +208,12 @@ void RGB_mode_handler(void)
 
 	if(isCyclic)
 	{
+		/* the timer will trig the next pass of this function */
 		start_timer(&mode_timer, MODE_INTERVAL_TICKS);
 	}
 	else
 	{
+		/* this is a one-shot action; the next pass is not required */
 		tx_timer_deactivate(&mode_timer);
 	}
 }
