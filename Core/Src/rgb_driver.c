@@ -88,11 +88,11 @@ void rgb_driver_thread_entry(ULONG thread_input)
   turn_off_LEDs();
 
   // XXX test
-  tx_thread_sleep(200);
-  RGB_params.transitionTime = 30;	//3 seconds
-  RGB_params.targetLevel = 30;
-  RGB_params.mode = RGB_MODE_RANDOM_ALL_FAST;
-  tx_event_flags_set(&rgb_driver_flags, RGB_SWITCH_ON, TX_OR);
+  //tx_thread_sleep(200);
+  //RGB_params.transitionTime = 30;	//3 seconds
+  //RGB_params.targetLevel = 30;
+  //RGB_params.mode = RGB_MODE_RANDOM_ALL_FAST;
+  //tx_event_flags_set(&rgb_driver_flags, RGB_SWITCH_ON, TX_OR);
 
 
   while (1)
