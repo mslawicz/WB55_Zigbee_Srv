@@ -65,6 +65,7 @@ void set_level_transition_parameters(void);
 UINT start_timer(TX_TIMER *timer_ptr, ULONG initial_ticks);
 void RGB_cyclic_change(uint8_t use_groups, uint32_t noOfSteps);
 void mode_timer_cbk(ULONG param);
+void RGB_random_change(uint8_t use_groups, uint32_t noOfSteps);
 
 void rgb_driver_thread_entry(ULONG thread_input)
 {
@@ -90,7 +91,7 @@ void rgb_driver_thread_entry(ULONG thread_input)
   tx_thread_sleep(200);
   RGB_params.transitionTime = 30;	//3 seconds
   RGB_params.targetLevel = 30;
-  RGB_params.mode = RGB_MODE_CYCLIC_ALL_FAST;
+  RGB_params.mode = RGB_MODE_RANDOM_GR_FAST;
   tx_event_flags_set(&rgb_driver_flags, RGB_SWITCH_ON, TX_OR);
 
 
@@ -107,6 +108,7 @@ void rgb_driver_thread_entry(ULONG thread_input)
   }
 }
 
+/* execute the desired action according to the set task event flags */
 void check_flags(ULONG flags)
 {
     if(flags & RGB_SWITCH_OFF)
@@ -173,7 +175,13 @@ void RGB_mode_handler(void)
 		/* cyclic all slow */
 		RGB_cyclic_change(FALSE, 1000);
 		isCyclic = TRUE;
-		break;				
+		break;
+
+		case RGB_MODE_RANDOM_GR_FAST:
+		/* random group fast */
+		RGB_random_change(TRUE, 100);
+		isCyclic = TRUE;
+		break;					
 
 		default:
 		turn_off_LEDs();
@@ -451,14 +459,12 @@ void RGB_random_change(uint8_t use_groups, uint32_t noOfSteps)
 	if(firstPass)
 	{
 		srand(RGB_LED_htim->Instance->CNT);
-		targetValue.R = rand() % 0x100;
-		targetValue.G = rand() % 0x100;
-		targetValue.B = rand() % 0x100;
+		getNewRGB(&targetValue);
 		for(group = 0; group < NUMBER_OF_GROUPS; group++)
 		{
 			RGB_value[group][1] = RGB_value[group][0] = targetValue;
 		}
-		set_RGB_LEDs(0, NUMBER_OF_LEDS, targetValue, RGB_params.currentLevel);	//set all LEDs to random value
+		set_RGB_LEDs(0, NUMBER_OF_LEDS, targetValue, RGB_params.targetLevel);	//set all LEDs to random value
 		firstPass = FALSE;
 	}
 

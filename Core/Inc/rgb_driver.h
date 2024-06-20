@@ -23,7 +23,7 @@ enum RGB_mode_t
 	RGB_MODE_CYCLIC_GR_SLOW,	//cyclic group slow
 	RGB_MODE_CYCLIC_ALL_FAST,	//cyclic all fast
 	RGB_MODE_CYCLIC_ALL_SLOW,	//cyclic all slow
-	// Mode_RandomGroupsFast,
+	RGB_MODE_RANDOM_GR_FAST,	// random group fast
 	// Mode_RandomGroupsSlow,
 	// Mode_RandomAllFast,
 	// Mode_RandomAllSlow,
