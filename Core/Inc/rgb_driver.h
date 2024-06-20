@@ -4,10 +4,11 @@
 #include "stm32wbxx_hal.h"
 #include "tx_api.h"
 
-#define RGB_SWITCH_OFF    	(1 << 0)
-#define RGB_SWITCH_ON     	(1 << 1)
-#define RGB_ACTION_REQUEST  (1 << 2)
-#define RGB_LVL_CHG_REQUEST (1 << 3)
+#define RGB_SWITCH_OFF			(1 << 0)
+#define RGB_SWITCH_ON			(1 << 1)
+#define RGB_ACTION_REQUEST		(1 << 2)
+#define RGB_LVL_CHG_REQUEST		(1 << 3)
+#define RGB_TRANSFER_REQUEST	(1 << 4)
 
 struct RGB
 {

@@ -535,13 +535,7 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
-{
-  if(htim == RGB_LED_htim)
-  {
-	  HAL_TIM_PWM_Stop_DMA(RGB_LED_htim, RGB_LED_Channel);
-  }
-}
+
 /* USER CODE END 4 */
 
 /**

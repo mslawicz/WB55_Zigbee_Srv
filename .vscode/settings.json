@@ -3,6 +3,7 @@
         "app_threadx.h": "c",
         "cstdint": "c",
         "main.h": "c",
-        "tx_api.h": "c"
+        "tx_api.h": "c",
+        "rgb_driver.h": "c"
     }
 }

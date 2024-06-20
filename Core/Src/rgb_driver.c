@@ -53,6 +53,8 @@ float RGB_current_level;	/* float value of current level for precise level chang
 float RGB_level_multiplicator;	/* level multiplicator for a single level change step */
 TX_TIMER level_timer;	/* timer for slow level changing */
 TX_TIMER mode_timer;	/* timer for cyclic modes handling */
+static uint8_t RGB_DMA_busy = FALSE;
+static uint8_t RGB_transfer_request = FALSE;
 
 void check_flags(ULONG flags);
 void set_RGB_LEDs(uint16_t first, uint16_t size, struct RGB RGB_value, uint8_t level);
@@ -88,11 +90,11 @@ void rgb_driver_thread_entry(ULONG thread_input)
   turn_off_LEDs();
 
   // XXX test
-  //tx_thread_sleep(200);
-  //RGB_params.transitionTime = 30;	//3 seconds
-  //RGB_params.targetLevel = 30;
-  //RGB_params.mode = RGB_MODE_RANDOM_ALL_FAST;
-  //tx_event_flags_set(&rgb_driver_flags, RGB_SWITCH_ON, TX_OR);
+  tx_thread_sleep(200);
+  RGB_params.transitionTime = 30;	//3 seconds
+  RGB_params.targetLevel = 30;
+  RGB_params.mode = RGB_MODE_CYCLIC_GR_FAST;
+  tx_event_flags_set(&rgb_driver_flags, RGB_SWITCH_ON, TX_OR);
 
 
   while (1)
@@ -138,6 +140,11 @@ void check_flags(ULONG flags)
 	{
 		RGB_level_handler();
 	}
+
+	if(flags & RGB_TRANSFER_REQUEST)
+	{
+		send_RGB_data(RGB_LED_htim, RGB_LED_Channel);	//send data to RGB LED units
+	}	
 }
 
 void RGB_mode_handler(void)
@@ -384,9 +391,19 @@ void set_RGB_bits(uint16_t LED ,struct RGB value, uint8_t level)
 //send all RGB LED data to LED devices
 HAL_StatusTypeDef send_RGB_data(TIM_HandleTypeDef* htim, uint32_t Channel)
 {
-	RGB_bits[NUMBER_OF_BITS - 1] = 0;		// the last pulse to be sent must be a PWM zero pulse
-	// send all RGB bits followed by a zero pulse
-	return HAL_TIM_PWM_Start_DMA(htim, Channel, (uint32_t*)RGB_bits, NUMBER_OF_BITS);
+	if(RGB_DMA_busy)
+	{
+		/* the previous transfer has not been finished yet; request the next one later */
+		RGB_transfer_request = TRUE;
+		return HAL_BUSY;
+	}
+	else
+	{
+		RGB_DMA_busy = TRUE;
+		RGB_bits[NUMBER_OF_BITS - 1] = 0;		// the last pulse to be sent must be a PWM zero pulse
+		// send all RGB bits followed by a zero pulse
+		return HAL_TIM_PWM_Start_DMA(htim, Channel, (uint32_t*)RGB_bits, NUMBER_OF_BITS);
+	}
 }
 
 // set a number of LEDs to a certain color and level
@@ -565,4 +582,19 @@ void mode_timer_cbk(ULONG param)
 {
 	UNUSED(param);
 	tx_event_flags_set(&rgb_driver_flags, RGB_ACTION_REQUEST, TX_OR);
+}
+
+void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
+{
+  if(htim == RGB_LED_htim)
+  {
+	  HAL_TIM_PWM_Stop_DMA(RGB_LED_htim, RGB_LED_Channel);
+	  RGB_DMA_busy = FALSE;
+	  if(RGB_transfer_request)
+	  {
+		/* the next transfer has been requested; initiate it */
+		tx_event_flags_set(&rgb_driver_flags, RGB_TRANSFER_REQUEST, TX_OR);
+		RGB_transfer_request = FALSE;
+	  }
+  }
 }
