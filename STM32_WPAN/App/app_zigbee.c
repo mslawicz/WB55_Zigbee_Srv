@@ -37,6 +37,7 @@
 #include "zcl/zcl.h"
 #include "zcl/general/zcl.identify.h"
 #include "zcl/general/zcl.onoff.h"
+#include "zcl/general/zcl.level.h"
 
 /* USER CODE BEGIN Includes */
 #include "main.h"
@@ -126,6 +127,7 @@ struct zigbee_app_info
 
   struct ZbZclClusterT *identify_server_1;
   struct ZbZclClusterT *onOff_server_1;
+  struct ZbZclClusterT *levelControl_server_1;
 };
 static struct zigbee_app_info zigbee_app_info;
 
@@ -139,6 +141,20 @@ static struct ZbZclOnOffServerCallbacksT OnOffServerCallbacks_1 =
   .off = onOff_server_1_off,
   .on = onOff_server_1_on,
   .toggle = onOff_server_1_toggle,
+};
+
+/* LevelControl server 1 custom callbacks */
+static enum ZclStatusCodeT levelControl_server_1_move_to_level(struct ZbZclClusterT *cluster, struct ZbZclLevelClientMoveToLevelReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg);
+static enum ZclStatusCodeT levelControl_server_1_move(struct ZbZclClusterT *cluster, struct ZbZclLevelClientMoveReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg);
+static enum ZclStatusCodeT levelControl_server_1_step(struct ZbZclClusterT *cluster, struct ZbZclLevelClientStepReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg);
+static enum ZclStatusCodeT levelControl_server_1_stop(struct ZbZclClusterT *cluster, struct ZbZclLevelClientStopReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg);
+
+static struct ZbZclLevelServerCallbacksT LevelServerCallbacks_1 =
+{
+  .move_to_level = levelControl_server_1_move_to_level,
+  .move = levelControl_server_1_move,
+  .step = levelControl_server_1_step,
+  .stop = levelControl_server_1_stop,
 };
 
 /* USER CODE BEGIN PV */
@@ -227,6 +243,42 @@ static enum ZclStatusCodeT onOff_server_1_toggle(struct ZbZclClusterT *cluster, 
   }
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 2 OnOff server 1 toggle 1 */
+}
+
+/* LevelControl server move_to_level 1 command callback */
+static enum ZclStatusCodeT levelControl_server_1_move_to_level(struct ZbZclClusterT *cluster, struct ZbZclLevelClientMoveToLevelReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
+{
+  /* USER CODE BEGIN 3 LevelControl server 1 move_to_level 1 */
+  APP_DBG("levelControl_server_1_move_to_level; lvl=%d, transTime=%d, onOff=%d", req->level, req->transition_time, req->with_onoff);
+  return ZCL_STATUS_SUCCESS;
+  /* USER CODE END 3 LevelControl server 1 move_to_level 1 */
+}
+
+/* LevelControl server move 1 command callback */
+static enum ZclStatusCodeT levelControl_server_1_move(struct ZbZclClusterT *cluster, struct ZbZclLevelClientMoveReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
+{
+  /* USER CODE BEGIN 4 LevelControl server 1 move 1 */
+  APP_DBG("levelControl_server_1_move");
+  return ZCL_STATUS_SUCCESS;
+  /* USER CODE END 4 LevelControl server 1 move 1 */
+}
+
+/* LevelControl server step 1 command callback */
+static enum ZclStatusCodeT levelControl_server_1_step(struct ZbZclClusterT *cluster, struct ZbZclLevelClientStepReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
+{
+  /* USER CODE BEGIN 5 LevelControl server 1 step 1 */
+  APP_DBG("levelControl_server_1_step");
+  return ZCL_STATUS_SUCCESS;
+  /* USER CODE END 5 LevelControl server 1 step 1 */
+}
+
+/* LevelControl server stop 1 command callback */
+static enum ZclStatusCodeT levelControl_server_1_stop(struct ZbZclClusterT *cluster, struct ZbZclLevelClientStopReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
+{
+  /* USER CODE BEGIN 6 LevelControl server 1 stop 1 */
+  APP_DBG("levelControl_server_1_stop");
+  return ZCL_STATUS_SUCCESS;
+  /* USER CODE END 6 LevelControl server 1 stop 1 */
 }
 
 /**
@@ -377,7 +429,7 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
 
   /* Endpoint: SW1_ENDPOINT */
   req.profileId = ZCL_PROFILE_HOME_AUTOMATION;
-  req.deviceId = ZCL_DEVICE_ONOFF_SWITCH;
+  req.deviceId = ZCL_DEVICE_DIMMABLE_LIGHT;
   req.endpoint = SW1_ENDPOINT;
   ZbZclAddEndpoint(zigbee_app_info.zb, &req, &conf);
   assert(conf.status == ZB_STATUS_SUCCESS);
@@ -390,6 +442,10 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
   zigbee_app_info.onOff_server_1 = ZbZclOnOffServerAlloc(zigbee_app_info.zb, SW1_ENDPOINT, &OnOffServerCallbacks_1, NULL);
   assert(zigbee_app_info.onOff_server_1 != NULL);
   ZbZclClusterEndpointRegister(zigbee_app_info.onOff_server_1);
+  /* LevelControl server */
+  zigbee_app_info.levelControl_server_1 = ZbZclLevelServerAlloc(zigbee_app_info.zb, SW1_ENDPOINT, zigbee_app_info.onOff_server_1, &LevelServerCallbacks_1, NULL);
+  assert(zigbee_app_info.levelControl_server_1 != NULL);
+  ZbZclClusterEndpointRegister(zigbee_app_info.levelControl_server_1);
 
   /* USER CODE BEGIN CONFIG_ENDPOINT */
   /* USER CODE END CONFIG_ENDPOINT */
@@ -470,18 +526,18 @@ static void APP_ZIGBEE_NwkForm(void)
       zigbee_app_info.join_delay = 0U;
       zigbee_app_info.init_after_join = true;
       APP_DBG("Startup done !\n");
-      /* USER CODE BEGIN 3 */
-      HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, GPIO_PIN_SET);
-      /* USER CODE END 3 */
+      /* USER CODE BEGIN 7 */
+
+      /* USER CODE END 7 */
     }
     else
     {
       zigbee_app_info.startupControl = ZbStartTypeForm;
       APP_DBG("Startup failed, attempting again after a short delay (%d ms)", APP_ZIGBEE_STARTUP_FAIL_DELAY);
       zigbee_app_info.join_delay = HAL_GetTick() + APP_ZIGBEE_STARTUP_FAIL_DELAY;
-      /* USER CODE BEGIN 4 */
-      HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, GPIO_PIN_RESET);
-      /* USER CODE END 4 */
+      /* USER CODE BEGIN 8 */
+
+      /* USER CODE END 8 */
     }
   }
 
@@ -649,6 +705,7 @@ static void APP_ZIGBEE_CheckWirelessFirmwareInfo(void)
     APP_DBG("Clusters allocated are:");
     APP_DBG("identify Server on Endpoint %d", SW1_ENDPOINT);
     APP_DBG("onOff Server on Endpoint %d", SW1_ENDPOINT);
+    APP_DBG("levelControl Server on Endpoint %d", SW1_ENDPOINT);
     APP_DBG("**********************************************************");
   }
 }
