@@ -4,6 +4,7 @@
         "cstdint": "c",
         "main.h": "c",
         "tx_api.h": "c",
-        "rgb_driver.h": "c"
+        "rgb_driver.h": "c",
+        "zcl.level.h": "c"
     }
 }

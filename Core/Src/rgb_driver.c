@@ -153,6 +153,7 @@ void check_flags(ULONG flags)
 void RGB_mode_handler(void)
 {
 	uint8_t isCyclic = FALSE;
+	tx_timer_deactivate(&mode_timer);
 
 	switch(RGB_params.mode)
 	{
@@ -221,16 +222,12 @@ void RGB_mode_handler(void)
 		/* the timer will trig the next pass of this function */
 		start_timer(&mode_timer, MODE_INTERVAL_TICKS);
 	}
-	else
-	{
-		/* this is a one-shot action; the next pass is not required */
-		tx_timer_deactivate(&mode_timer);
-	}
 }
 
 void RGB_level_handler(void)
 {
 	uint8_t previous_level = RGB_params.currentLevel;
+	tx_timer_deactivate(&level_timer);
 
 	if(RGB_params.transitionTime == 0)
 	{
@@ -577,8 +574,17 @@ void set_level_transition_parameters(void)
 /* start one-shot timer with the given initial ticks */
 UINT start_timer(TX_TIMER *timer_ptr, ULONG initial_ticks)
 {
-	tx_timer_change(timer_ptr, initial_ticks, 0);
-	return tx_timer_activate(timer_ptr);
+	UINT status;
+	status = tx_timer_change(timer_ptr, initial_ticks, 0);
+	if(status == TX_SUCCESS)
+	{
+		status = tx_timer_activate(timer_ptr);
+	}
+	else
+	{
+		status = status;
+	}
+	return status;
 }
 
 void mode_timer_cbk(ULONG param)
