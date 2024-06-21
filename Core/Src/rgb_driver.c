@@ -35,15 +35,16 @@ static const uint8_t ColorPattern[7][3] =
 
 struct RGB_Params_t RGB_params =
 {
-		.mode = RGB_MODE_STATIC,
-		.currentLevel=0,
-		.targetLevel = RGB_INIT_LEVEL,
-		.clientLevel = RGB_INIT_LEVEL,
-		.transitionTime = 0,
-		.color = { 255, 255, 255 },
-		.cluster = NULL,
-		.srcInfo = NULL,
-		.arg = NULL
+	.isOn = FALSE,
+	.mode = RGB_MODE_STATIC,
+	.currentLevel=0,
+	.targetLevel = RGB_INIT_LEVEL,
+	.clientLevel = RGB_INIT_LEVEL,
+	.transitionTime = 0,
+	.color = { 255, 255, 255 },
+	.cluster = NULL,
+	.srcInfo = NULL,
+	.arg = NULL
 };
 
 TIM_HandleTypeDef* RGB_LED_htim = NULL;
@@ -120,6 +121,7 @@ void check_flags(ULONG flags)
         HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_RESET);  //XXX test
 		/* initiate action on next pass */
         tx_event_flags_set(&rgb_driver_flags, RGB_LVL_CHG_REQUEST, TX_OR);
+		RGB_params.isOn = FALSE;
     }
 
     if(flags & RGB_SWITCH_ON)
@@ -129,6 +131,7 @@ void check_flags(ULONG flags)
         HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_SET);  //XXX test
 		/* initiate action on next pass */
 		tx_event_flags_set(&rgb_driver_flags, RGB_LVL_CHG_REQUEST, TX_OR);
+		RGB_params.isOn = TRUE;
     }
 
 	if(flags & RGB_ACTION_REQUEST)

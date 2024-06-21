@@ -33,6 +33,7 @@ enum RGB_mode_t
 
 struct RGB_Params_t
 {
+	uint8_t isOn;
 	enum RGB_mode_t mode;
 	uint8_t currentLevel;
 	uint8_t targetLevel;
@@ -44,6 +45,7 @@ struct RGB_Params_t
 	void* arg;
 };
 
+extern struct RGB_Params_t RGB_params;
 extern TX_EVENT_FLAGS_GROUP rgb_driver_flags;
 extern TIM_HandleTypeDef* RGB_LED_htim;
 extern uint32_t RGB_LED_Channel;

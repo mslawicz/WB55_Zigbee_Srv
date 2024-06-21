@@ -250,6 +250,37 @@ static enum ZclStatusCodeT levelControl_server_1_move_to_level(struct ZbZclClust
 {
   /* USER CODE BEGIN 3 LevelControl server 1 move_to_level 1 */
   APP_DBG("levelControl_server_1_move_to_level; lvl=%d, transTime=%d, onOff=%d", req->level, req->transition_time, req->with_onoff);
+  RGB_params.targetLevel = req->level;
+  RGB_params.transitionTime = req->transition_time;
+
+  if((req->with_onoff) && (RGB_params.isOn == FALSE) && (RGB_params.targetLevel > 0))
+  {
+    /* switch the device on and change level */
+    RGB_params.currentLevel = 0;
+    ZbZclAttrIntegerWrite(cluster, ZCL_ONOFF_ATTR_ONOFF, 1);
+    APP_DBG("levelControl_server_1_move_to_level -> device on request");
+    tx_event_flags_set(&rgb_driver_flags, RGB_SWITCH_ON, TX_OR);
+  }
+  else if((req->with_onoff) && (RGB_params.isOn == TRUE) && (RGB_params.targetLevel == 0))
+  {
+    /* change level and switch the device Off */
+    ZbZclAttrIntegerWrite(cluster, ZCL_ONOFF_ATTR_ONOFF, 0);
+    APP_DBG("levelControl_server_1_move_to_level -> device off request");
+    tx_event_flags_set(&rgb_driver_flags, RGB_SWITCH_OFF, TX_OR);
+  }
+  else if(RGB_params.isOn == TRUE)
+  {
+    /* change level only */
+    tx_event_flags_set(&rgb_driver_flags, RGB_LVL_CHG_REQUEST, TX_OR);
+  }
+  else
+  {
+    /* ignore when device is off and with_onoff argument is false */
+    APP_DBG("levelControl_server_1_move_to_level ignored - device is off");
+  }
+
+  ZbZclAttrIntegerWrite(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, RGB_params.targetLevel);
+
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 3 LevelControl server 1 move_to_level 1 */
 }
