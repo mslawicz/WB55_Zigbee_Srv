@@ -51,5 +51,6 @@ extern TIM_HandleTypeDef* RGB_LED_htim;
 extern uint32_t RGB_LED_Channel;
 
 extern void rgb_driver_thread_entry(ULONG thread_input);
+extern void convert_xy_to_RGB(uint16_t x, uint16_t y, struct RGB* pRGB);
 
 #endif /* __RGB_DRIVER_H */

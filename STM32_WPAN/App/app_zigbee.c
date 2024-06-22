@@ -273,7 +273,20 @@ static enum ZclStatusCodeT onOff_server_1_toggle(struct ZbZclClusterT *cluster, 
 static enum ZclStatusCodeT colorControl_server_1_move_to_color_xy(struct ZbZclClusterT *cluster, struct ZbZclColorClientMoveToColorXYReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
 {
   /* USER CODE BEGIN 3 ColorControl server 1 move_to_color_xy 1 */
-  APP_DBG("colorControl_server_1_move_to_color_xy");
+  APP_DBG("colorControl_server_1_move_to_color_xy(x=%d y=%d)", req->color_x, req->color_y);
+
+  (void)ZbZclAttrIntegerWrite(cluster, ZCL_COLOR_ATTR_CURRENT_X, req->color_x);
+	(void)ZbZclAttrIntegerWrite(cluster, ZCL_COLOR_ATTR_CURRENT_Y, req->color_y);
+	(void)ZbZclAttrIntegerWrite(cluster, ZCL_COLOR_ATTR_REMAINING_TIME, req->transition_time);
+
+	convert_xy_to_RGB(req->color_x, req->color_y, &RGB_params.color);
+	/* execute action if the device is on */
+	if(RGB_params.isOn)
+	{
+		RGB_params.mode = RGB_MODE_STATIC;
+		tx_event_flags_set(&rgb_driver_flags, RGB_ACTION_REQUEST, TX_OR);
+	}
+
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 3 ColorControl server 1 move_to_color_xy 1 */
 }
@@ -300,7 +313,11 @@ static enum ZclStatusCodeT colorControl_server_1_step_color_xy(struct ZbZclClust
 static enum ZclStatusCodeT colorControl_server_1_move_to_color_temp(struct ZbZclClusterT *cluster, struct ZbZclColorClientMoveToColorTempReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
 {
   /* USER CODE BEGIN 6 ColorControl server 1 move_to_color_temp 1 */
-  APP_DBG("colorControl_server_1_move_to_color_temp");
+  APP_DBG("colorControl_server_1_move_to_color_temp (temp=%d)", req->color_temp);
+  //TODO implement color temperature setup
+	(void)ZbZclAttrIntegerWrite(cluster, ZCL_COLOR_ATTR_COLOR_TEMP_MIREDS,req->color_temp);
+	(void)ZbZclAttrIntegerWrite(cluster, ZCL_COLOR_ATTR_REMAINING_TIME, req->transition_time);
+
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 6 ColorControl server 1 move_to_color_temp 1 */
 }
