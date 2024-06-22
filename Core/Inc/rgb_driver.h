@@ -10,6 +10,11 @@
 #define RGB_LVL_CHG_REQUEST		(1 << 3)
 #define RGB_TRANSFER_REQUEST	(1 << 4)
 
+struct XY
+{
+	uint16_t x;
+	uint16_t y;
+};
 struct RGB
 {
 	uint8_t R;
@@ -52,5 +57,6 @@ extern uint32_t RGB_LED_Channel;
 
 extern void rgb_driver_thread_entry(ULONG thread_input);
 extern void convert_xy_to_RGB(uint16_t x, uint16_t y, struct RGB* pRGB);
+extern struct XY color_temperature_to_xy(uint16_t color_temperature);
 
 #endif /* __RGB_DRIVER_H */

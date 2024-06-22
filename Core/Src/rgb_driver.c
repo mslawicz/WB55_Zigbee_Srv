@@ -607,3 +607,12 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 	  }
   }
 }
+
+/* interpolates color x y values from MIRED color temperature */
+struct XY color_temperature_to_xy(uint16_t color_temperature)
+{
+	struct XY color;
+	color.x = (uint16_t)(-0.0498437f * color_temperature * color_temperature + 85.00335f * color_temperature + 9825.8252f);
+	color.y = (uint16_t)(-0.077899f * color_temperature * color_temperature + 61.150216f * color_temperature + 13583.311f);
+	return color;
+}

@@ -318,9 +318,17 @@ static enum ZclStatusCodeT colorControl_server_1_move_to_color_temp(struct ZbZcl
 {
   /* USER CODE BEGIN 6 ColorControl server 1 move_to_color_temp 1 */
   APP_DBG("colorControl_server_1_move_to_color_temp (temp=%d)", req->color_temp);
-  //TODO implement color temperature setup
+  
+  struct XY color = color_temperature_to_xy(req->color_temp);
 	(void)ZbZclAttrIntegerWrite(cluster, ZCL_COLOR_ATTR_COLOR_TEMP_MIREDS,req->color_temp);
 	(void)ZbZclAttrIntegerWrite(cluster, ZCL_COLOR_ATTR_REMAINING_TIME, req->transition_time);
+	convert_xy_to_RGB(color.x, color.y, &RGB_params.color);
+	/* execute action if the device is on */
+	if(RGB_params.isOn)
+	{
+		RGB_params.mode = RGB_MODE_STATIC;
+		tx_event_flags_set(&rgb_driver_flags, RGB_ACTION_REQUEST, TX_OR);
+	}  
 
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 6 ColorControl server 1 move_to_color_temp 1 */
