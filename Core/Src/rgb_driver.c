@@ -288,10 +288,12 @@ void RGB_level_handler(void)
 }
 
 //convert color data from xy space to RGB value
-void convert_xy_to_RGB(uint16_t x, uint16_t y, struct RGB* pRGB)
+struct RGB convert_xy_to_RGB(struct XY color_xy)
 {
 #define constrain_from_0(x)		if(x < 0) { x = 0.0; }
 	float gamma_correction(float  vat2correct);
+
+	struct RGB color_rgb;
 
 	const float ZXY2RGB[3][3] =	//matrix for converting Ikea light bulb color XY ( CIE 1931 colorspace ) to RGB
 	{
@@ -302,8 +304,8 @@ void convert_xy_to_RGB(uint16_t x, uint16_t y, struct RGB* pRGB)
 	const float XY_NORM = 1.0 / 65536.0;
 
 	/* normalize x y z to 0..1 range */
-	const float x_n = x * XY_NORM;
-	const float y_n = y * XY_NORM;
+	const float x_n = color_xy.x * XY_NORM;
+	const float y_n = color_xy.y * XY_NORM;
 	const float z_n = 1.0 - x_n - y_n;
 
 	/* calculate CIE X Y Z values */
@@ -338,9 +340,11 @@ void convert_xy_to_RGB(uint16_t x, uint16_t y, struct RGB* pRGB)
 	b = gamma_correction(b);
 
 	/* normalize to 0..255 */
-	pRGB->R = (uint8_t)(r * 255 + 0.5);
-	pRGB->G = (uint8_t)(g * 255 + 0.5);
-	pRGB->B = (uint8_t)(b * 255 + 0.5);
+	color_rgb.R = (uint8_t)(r * 255 + 0.5);
+	color_rgb.G = (uint8_t)(g * 255 + 0.5);
+	color_rgb.B = (uint8_t)(b * 255 + 0.5);
+
+	return color_rgb;
 }
 
 //adjust gamma correction to a color value
