@@ -340,6 +340,22 @@ static enum ZclStatusCodeT colorControl_server_1_color_loop_set(struct ZbZclClus
 {
   /* USER CODE BEGIN 7 ColorControl server 1 color_loop_set 1 */
   APP_DBG("colorControl_server_1_color_loop_set; a=%d, d=%d, m=%d, o=%d, h=%d, t=%d, f=%d", req->action, req->direction, req->mask, req->override, req->start_hue, req->transition_time, req->update_flags);
+  if(req->update_flags & ZCL_COLOR_LOOP_FLAG_UPDATE_ACTION)
+  {
+    (void)ZbZclAttrIntegerWrite(cluster, ZCL_COLOR_ATTR_COLOR_LOOP_ACTIVE,req->action);
+  }
+  if(req->update_flags & ZCL_COLOR_LOOP_FLAG_UPDATE_DIRECTION)
+  {
+    (void)ZbZclAttrIntegerWrite(cluster, ZCL_COLOR_ATTR_COLOR_LOOP_DIR,req->direction);
+  }  
+  if(req->update_flags & ZCL_COLOR_LOOP_FLAG_UPDATE_TIME)
+  {
+    (void)ZbZclAttrIntegerWrite(cluster, ZCL_COLOR_ATTR_COLOR_LOOP_TIME,req->transition_time);
+  }
+  if(req->update_flags & ZCL_COLOR_LOOP_FLAG_UPDATE_START_HUE)
+  {
+    (void)ZbZclAttrIntegerWrite(cluster, ZCL_COLOR_ATTR_COLOR_LOOP_START_HUE,req->start_hue);
+  }     
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 7 ColorControl server 1 color_loop_set 1 */
 }
