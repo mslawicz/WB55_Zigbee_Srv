@@ -54,8 +54,8 @@ float RGB_current_level;	/* float value of current level for precise level chang
 float RGB_level_multiplicator;	/* level multiplicator for a single level change step */
 TX_TIMER level_timer;	/* timer for slow level changing */
 TX_TIMER mode_timer;	/* timer for cyclic modes handling */
-static uint8_t RGB_DMA_busy = FALSE;
-static uint8_t RGB_transfer_request = FALSE;
+static volatile uint8_t RGB_DMA_busy = FALSE;
+static volatile uint8_t RGB_transfer_request = FALSE;
 
 void check_flags(ULONG flags);
 void set_RGB_LEDs(uint16_t first, uint16_t size, struct RGB RGB_value, uint8_t level);

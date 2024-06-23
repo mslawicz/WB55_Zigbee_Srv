@@ -339,7 +339,7 @@ static enum ZclStatusCodeT colorControl_server_1_move_to_color_temp(struct ZbZcl
 static enum ZclStatusCodeT colorControl_server_1_color_loop_set(struct ZbZclClusterT *cluster, struct ZbZclColorClientColorLoopSetReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
 {
   /* USER CODE BEGIN 7 ColorControl server 1 color_loop_set 1 */
-  APP_DBG("colorControl_server_1_color_loop_set");
+  APP_DBG("colorControl_server_1_color_loop_set; a=%d, d=%d, m=%d, o=%d, h=%d, t=%d, f=%d", req->action, req->direction, req->mask, req->override, req->start_hue, req->transition_time, req->update_flags);
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 7 ColorControl server 1 color_loop_set 1 */
 }
