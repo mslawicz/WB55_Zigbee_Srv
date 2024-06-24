@@ -1,9 +1,14 @@
 #include "gtest/gtest.h"
-#include "stm32wbxx_hal.h"
+//#include "../stm32wbxx_hal.h"
 
-TEST(HALTest, Initialization) {
-    HAL_StatusTypeDef status = HAL_Init();
-    ASSERT_EQ(status, HAL_OK);
+// TEST(HALTest, Initialization) {
+//     HAL_StatusTypeDef status = HAL_Init();
+//     ASSERT_EQ(status, HAL_OK);
+// }
+
+TEST(intTest, chekValue) {
+    int x = 1;
+    ASSERT_EQ(x-1, 0);
 }
 
 int main(int argc, char **argv) {

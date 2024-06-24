@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.29)
 
 #
 # This file is generated only once,
@@ -357,3 +357,9 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
 
     # Add user defined libraries
 )
+
+# Enable testing
+enable_testing()
+
+# Add subdirectory for tests
+add_subdirectory(tests)
