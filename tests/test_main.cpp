@@ -1,5 +1,11 @@
 #include "gtest/gtest.h"
-//#include "../stm32wbxx_hal.h"
+#include "stm32wbxx_hal.h"
+
+#ifdef __cplusplus
+#ifndef __restrict
+#define __restrict __restrict__
+#endif
+#endif
 
 // TEST(HALTest, Initialization) {
 //     HAL_StatusTypeDef status = HAL_Init();
