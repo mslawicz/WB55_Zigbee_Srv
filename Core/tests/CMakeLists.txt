@@ -11,6 +11,7 @@ include_directories(../Inc)
 # Add source files
 set(SOURCES
     ../Src/myTest.c
+    cmake_src/test_main.cpp
 )
 
 # Create the executable
