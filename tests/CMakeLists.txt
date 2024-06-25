@@ -23,7 +23,13 @@ add_subdirectory(${CMAKE_BINARY_DIR}/googletest-src
                  EXCLUDE_FROM_ALL)
 
 # Link against gtest or gtest_main as needed
-include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
+include_directories(
+  ${gtest_SOURCE_DIR}/include
+  ${gtest_SOURCE_DIR}
+  ${PROJECT_SOURCE_DIR}/Drivers/STM32WBxx_HAL_Driver/Inc
+  ${PROJECT_SOURCE_DIR}/Core/Inc
+  ${PROJECT_SOURCE_DIR}/Drivers/CMSIS/Device/ST/STM32WBxx/Include
+)
 
 # Define the tests
 file(GLOB TEST_SOURCES "*.cpp")

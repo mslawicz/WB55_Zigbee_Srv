@@ -345,7 +345,7 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
 	STM32WB55xx
 	TX_SINGLE_MODE_NON_SECURE=1
 	USE_NUCLEO_64
-	STM32_THREAD_SAFE_STRATEGY=2	
+	STM32_THREAD_SAFE_STRATEGY=2
 )
 
 # Disable linker segmentation warning

@@ -6,6 +6,7 @@
         "tx_api.h": "c",
         "rgb_driver.h": "c",
         "zcl.level.h": "c",
-        "zcl.color.h": "c"
+        "zcl.color.h": "c",
+        "stm32wbxx_hal.h": "c"
     }
 }
