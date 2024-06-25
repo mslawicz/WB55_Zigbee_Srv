@@ -1,5 +1,8 @@
 # tests/CMakeLists.txt
 
+# Use the native GCC toolchain file for tests
+set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/GCCNativeToolchain.cmake)
+
 # Download and unpack googletest at configure time
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/googletest/CMakeLists.txt.in
                ${CMAKE_BINARY_DIR}/googletest-download/CMakeLists.txt)
@@ -23,13 +26,8 @@ add_subdirectory(${CMAKE_BINARY_DIR}/googletest-src
                  EXCLUDE_FROM_ALL)
 
 # Link against gtest or gtest_main as needed
-include_directories(
-  ${gtest_SOURCE_DIR}/include
-  ${gtest_SOURCE_DIR}
-  ${PROJECT_SOURCE_DIR}/Drivers/STM32WBxx_HAL_Driver/Inc
-  ${PROJECT_SOURCE_DIR}/Core/Inc
-  ${PROJECT_SOURCE_DIR}/Drivers/CMSIS/Device/ST/STM32WBxx/Include
-)
+include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # Define the tests
 file(GLOB TEST_SOURCES "*.cpp")
