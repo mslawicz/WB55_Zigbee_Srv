@@ -2,22 +2,16 @@ cmake_minimum_required(VERSION 3.13)
 
 project(unit_test C CXX)
 
+# Enable testing
+enable_testing()
+
 # Define the path to your STM32 toolchain file
 set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/GCCNativeToolchain.cmake)
-
-# Add googletest directly to our build. This defines
-# the gtest and gtest_main targets.
-#add_subdirectory(${CMAKE_BINARY_DIR}/cmake_src
-#                 ${CMAKE_BINARY_DIR}/build)
 
 # Include directories
 include_directories(
     ../Inc
     ../../third_party/googletest/googletest/include
-    ../../third_party/googletest/build/lib
-    ${gtest_SOURCE_DIR}/include
-    ${gtest_SOURCE_DIR}   
-    ${CMAKE_SOURCE_DIR}/include 
 )
 
 # Add source files
@@ -33,18 +27,6 @@ target_link_directories(${PROJECT_NAME} PUBLIC ../../third_party/googletest/buil
 
 # Link the necessary libraries
 target_link_libraries(${PROJECT_NAME} gtest gtest_main pthread)
-
-# Enable testing
-enable_testing()
-
-# Add subdirectory for tests
-#add_subdirectory(tests)
-
-# Add googletest directly to our build. This defines
-# the gtest and gtest_main targets.
-#add_subdirectory(${CMAKE_BINARY_DIR}/googletest-src
-#                 ${CMAKE_BINARY_DIR}/googletest-build
-#                 EXCLUDE_FROM_ALL)
 
 # Define the tests
 file(GLOB TEST_SOURCES "*.cpp")
