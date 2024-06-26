@@ -1,12 +1,24 @@
 cmake_minimum_required(VERSION 3.13)
 
-project(CoreTest C CXX)
+project(unit_test C CXX)
 
 # Define the path to your STM32 toolchain file
 set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/GCCNativeToolchain.cmake)
 
+# Add googletest directly to our build. This defines
+# the gtest and gtest_main targets.
+#add_subdirectory(${CMAKE_BINARY_DIR}/cmake_src
+#                 ${CMAKE_BINARY_DIR}/build)
+
 # Include directories
-include_directories(../Inc)
+include_directories(
+    ../Inc
+    ../../third_party/googletest/googletest/include
+    ../../third_party/googletest/build/lib
+    ${gtest_SOURCE_DIR}/include
+    ${gtest_SOURCE_DIR}   
+    ${CMAKE_SOURCE_DIR}/include 
+)
 
 # Add source files
 set(SOURCES
@@ -17,8 +29,10 @@ set(SOURCES
 # Create the executable
 add_executable(${PROJECT_NAME} ${SOURCES})
 
+target_link_directories(${PROJECT_NAME} PUBLIC ../../third_party/googletest/build/lib)
+
 # Link the necessary libraries
-#target_link_libraries(${PROJECT_NAME} HAL_Driver)
+target_link_libraries(${PROJECT_NAME} gtest gtest_main pthread)
 
 # Enable testing
 enable_testing()
@@ -31,10 +45,6 @@ enable_testing()
 #add_subdirectory(${CMAKE_BINARY_DIR}/googletest-src
 #                 ${CMAKE_BINARY_DIR}/googletest-build
 #                 EXCLUDE_FROM_ALL)
-
-# Link against gtest or gtest_main as needed
-include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
-include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # Define the tests
 file(GLOB TEST_SOURCES "*.cpp")

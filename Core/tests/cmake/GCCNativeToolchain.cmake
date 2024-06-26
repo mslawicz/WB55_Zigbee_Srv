@@ -18,3 +18,7 @@ set(CMAKE_SIZE                      size)
 set(CMAKE_EXECUTABLE_SUFFIX_ASM     ".exe")
 set(CMAKE_EXECUTABLE_SUFFIX_C       ".exe")
 set(CMAKE_EXECUTABLE_SUFFIX_CXX     ".exe")
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -lgtest -lgtest_main -lpthread -Wall")
+set(CMAKE_CXX_FLAGS ${CMAKE_C_FLAGS})
+
