@@ -1,6 +1,8 @@
 #ifndef __MOCK_TX_API_H
 #define __MOCK_TX_API_H
 
+#include <stddef.h>
+
 /* Define the TX_THREAD control block extensions for this port. The main reason
    for the multiple macros is so that backward compatibility can be maintained with
    existing ThreadX kernel awareness modules.  */

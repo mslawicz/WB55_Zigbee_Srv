@@ -7,6 +7,12 @@
         "rgb_driver.h": "c",
         "zcl.level.h": "c",
         "zcl.color.h": "c",
-        "stm32wbxx.h": "c"
+        "stm32wbxx.h": "c",
+        "atomic": "cpp",
+        "chrono": "cpp",
+        "compare": "cpp",
+        "*.tcc": "cpp",
+        "random": "cpp",
+        "stop_token": "cpp"
     }
 }

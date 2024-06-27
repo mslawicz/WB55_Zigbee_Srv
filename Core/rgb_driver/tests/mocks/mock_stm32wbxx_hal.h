@@ -1,6 +1,9 @@
 #ifndef __MOCK_STM32WBXX_HAL_H
 #define __MOCK_STM32WBXX_HAL_H
 
+#include <stddef.h>
+#include <stdlib.h>
+
 #ifdef __cplusplus
   #define   __I     volatile             /*!< Defines 'read only' permissions */
 #else
@@ -13,6 +16,17 @@
 #define     __IM     volatile const      /*! Defines 'read only' structure member permissions */
 #define     __OM     volatile            /*! Defines 'write only' structure member permissions */
 #define     __IOM    volatile            /*! Defines 'read / write' structure member permissions */
+
+#define uint8_t unsigned char
+#define uint16_t unsigned short int
+#define uint32_t unsigned int
+
+#ifndef UNUSED
+#define UNUSED(X) (void)(X)      /* To avoid gcc/g++ warnings */
+#endif /* UNUSED */
+
+#define FALSE 0
+#define TRUE  1
 
 /**
   * @brief  HAL Status structures definition
@@ -103,4 +117,74 @@ typedef struct
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
 } TIM_HandleTypeDef;
 
+/**
+  * @brief General Purpose I/O
+  */
+typedef struct
+{
+  __IO uint32_t MODER;       /*!< GPIO port mode register,               Address offset: 0x00      */
+  __IO uint32_t OTYPER;      /*!< GPIO port output type register,        Address offset: 0x04      */
+  __IO uint32_t OSPEEDR;     /*!< GPIO port output speed register,       Address offset: 0x08      */
+  __IO uint32_t PUPDR;       /*!< GPIO port pull-up/pull-down register,  Address offset: 0x0C      */
+  __IO uint32_t IDR;         /*!< GPIO port input data register,         Address offset: 0x10      */
+  __IO uint32_t ODR;         /*!< GPIO port output data register,        Address offset: 0x14      */
+  __IO uint32_t BSRR;        /*!< GPIO port bit set/reset  register,     Address offset: 0x18      */
+  __IO uint32_t LCKR;        /*!< GPIO port configuration lock register, Address offset: 0x1C      */
+  __IO uint32_t AFR[2];      /*!< GPIO alternate function registers,     Address offset: 0x20-0x24 */
+  __IO uint32_t BRR;         /*!< GPIO Bit Reset register,               Address offset: 0x28      */
+} GPIO_TypeDef;
+
+typedef enum
+{
+  GPIO_PIN_RESET = 0U,
+  GPIO_PIN_SET
+} GPIO_PinState;
+
+#define GPIOA               0
+#define GPIOB               0
+#define GPIOC               0
+#define GPIOD               0
+#define GPIOE               0
+#define GPIOH               0
+
+#define GPIO_PIN_0                 ((uint16_t)0x0001)  /* Pin 0 selected    */
+#define GPIO_PIN_1                 ((uint16_t)0x0002)  /* Pin 1 selected    */
+#define GPIO_PIN_2                 ((uint16_t)0x0004)  /* Pin 2 selected    */
+#define GPIO_PIN_3                 ((uint16_t)0x0008)  /* Pin 3 selected    */
+#define GPIO_PIN_4                 ((uint16_t)0x0010)  /* Pin 4 selected    */
+#define GPIO_PIN_5                 ((uint16_t)0x0020)  /* Pin 5 selected    */
+#define GPIO_PIN_6                 ((uint16_t)0x0040)  /* Pin 6 selected    */
+#define GPIO_PIN_7                 ((uint16_t)0x0080)  /* Pin 7 selected    */
+#define GPIO_PIN_8                 ((uint16_t)0x0100)  /* Pin 8 selected    */
+#define GPIO_PIN_9                 ((uint16_t)0x0200)  /* Pin 9 selected    */
+#define GPIO_PIN_10                ((uint16_t)0x0400)  /* Pin 10 selected   */
+#define GPIO_PIN_11                ((uint16_t)0x0800)  /* Pin 11 selected   */
+#define GPIO_PIN_12                ((uint16_t)0x1000)  /* Pin 12 selected   */
+#define GPIO_PIN_13                ((uint16_t)0x2000)  /* Pin 13 selected   */
+#define GPIO_PIN_14                ((uint16_t)0x4000)  /* Pin 14 selected   */
+#define GPIO_PIN_15                ((uint16_t)0x8000)  /* Pin 15 selected   */
+#define GPIO_PIN_All               ((uint16_t)0xFFFF)  /* All pins selected */
+
+#define GPIO_PIN_MASK              ((uint32_t)0x0000FFFF) /* PIN mask for assert test */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+/* IO operation functions *****************************************************/
+//GPIO_PinState     HAL_GPIO_ReadPin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin);
+void              HAL_GPIO_WritePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, GPIO_PinState PinState);
+//void              HAL_GPIO_WriteMultipleStatePin(GPIO_TypeDef *GPIOx, uint16_t PinReset, uint16_t PinSet);
+void              HAL_GPIO_TogglePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin);
+//HAL_StatusTypeDef HAL_GPIO_LockPin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin);
+//void              HAL_GPIO_EXTI_IRQHandler(uint16_t GPIO_Pin);
+//void              HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
+
+
+HAL_StatusTypeDef HAL_TIM_PWM_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel, const uint32_t *pData,
+                                        uint16_t Length);
+HAL_StatusTypeDef HAL_TIM_PWM_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel);    
+
+#ifdef __cplusplus
+}
+#endif
 #endif /*__MOCK_STM32WBXX_HAL_H */

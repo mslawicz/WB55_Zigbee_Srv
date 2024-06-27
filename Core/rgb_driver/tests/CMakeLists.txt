@@ -20,6 +20,9 @@ include_directories(
 # Add source files
 set(SOURCES
     ../src/myTest.c
+    ../src/rgb_driver.c
+    ../mocks/mock_stm32wbxx_hal.c
+    ../mocks/mock_tx_api.c
     cmake_src/test_main.cpp
 )
 

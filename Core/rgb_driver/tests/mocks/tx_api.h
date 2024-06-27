@@ -119,6 +119,7 @@ extern   "C" {
 /* Include the port-specific data type file.  */
 
 //#include "tx_port.h"
+#include "mock_tx_api.h"
 
 #if (defined(TX_EXECUTION_PROFILE_ENABLE) && !defined(TX_ENABLE_EXECUTION_CHANGE_NOTIFY))
 #include "tx_execution_profile.h"

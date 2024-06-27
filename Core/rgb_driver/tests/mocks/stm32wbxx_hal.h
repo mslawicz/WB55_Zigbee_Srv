@@ -28,6 +28,7 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 //#include "stm32wbxx_hal_conf.h"
 //#include "stm32wbxx_ll_system.h"
+#include "mock_stm32wbxx_hal.h"
 
 /** @addtogroup STM32WBxx_HAL_Driver
   * @{
