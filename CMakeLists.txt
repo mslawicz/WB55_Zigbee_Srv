@@ -303,12 +303,14 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
 	${WPAN_SRC}
 	AZURE_RTOS/App/app_azure_rtos.c
 	Utilities/lpm/tiny_lpm/stm32_lpm.c
+	Core/rgb_driver/src/rgb_driver.c
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
 	NetXDuo/App
 	Core/Inc
+	Core/rgb_driver/src
 	AZURE_RTOS/App
 	STM32_WPAN/App
 	Drivers/STM32WBxx_HAL_Driver/Inc
