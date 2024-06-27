@@ -8,25 +8,25 @@ enable_testing()
 # Define the path to your STM32 toolchain file
 set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/GCCNativeToolchain.cmake)
 
-set(MAIN_PROJ_DIR ../../)
+set(MAIN_PROJ_DIR ../../../)
 
 # Include directories
 include_directories(
-    ../Inc
+    ../src
     mocks
     ${MAIN_PROJ_DIR}third_party/googletest/googletest/include
 )
 
 # Add source files
 set(SOURCES
-    ../Src/myTest.c
+    ../src/myTest.c
     cmake_src/test_main.cpp
 )
 
 # Create the executable
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-target_link_directories(${PROJECT_NAME} PUBLIC ../../third_party/googletest/build/lib)
+target_link_directories(${PROJECT_NAME} PUBLIC ${MAIN_PROJ_DIR}third_party/googletest/build/lib)
 
 # Link the necessary libraries
 target_link_libraries(${PROJECT_NAME} gtest gtest_main pthread)
