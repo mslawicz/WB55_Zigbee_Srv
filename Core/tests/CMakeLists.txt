@@ -8,10 +8,13 @@ enable_testing()
 # Define the path to your STM32 toolchain file
 set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/GCCNativeToolchain.cmake)
 
+set(MAIN_PROJ_DIR ../../)
+
 # Include directories
 include_directories(
     ../Inc
-    ../../third_party/googletest/googletest/include
+    mocks
+    ${MAIN_PROJ_DIR}third_party/googletest/googletest/include
 )
 
 # Add source files

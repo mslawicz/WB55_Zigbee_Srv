@@ -2,8 +2,10 @@
 #include "gtest/gtest.h"
 
 extern "C" {
+#include "mock_stm32wbxx_hal.h"
+#include "mock_tx_api.h"
 #include "myTest.h"
-//#include "mock_stm32f1xx_hal.h"
+#include "rgb_driver.h"
 }
 
 TEST(MyCodeTest, TestMyFunction) {
