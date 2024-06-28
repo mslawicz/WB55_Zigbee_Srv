@@ -92,6 +92,7 @@ static void APP_ZIGBEE_ProcessNwkForm(ULONG argument);
 static void APP_ZIGBEE_TimingElapsed(void);
 
 /* USER CODE BEGIN PFP */
+static enum ZclStatusCodeT colorLoopActAttrCbk(struct ZbZclClusterT* cluster, struct ZbZclAttrCbInfoT* info);
 /* USER CODE END PFP */
 
 /* Private variables ---------------------------------------------------------*/
@@ -665,7 +666,7 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
     },
     {
         ZCL_COLOR_ATTR_COLOR_LOOP_ACTIVE, ZCL_DATATYPE_UNSIGNED_8BIT,
-        ZCL_ATTR_FLAG_REPORTABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
+        ZCL_ATTR_FLAG_WRITABLE | ZCL_ATTR_FLAG_REPORTABLE | ZCL_ATTR_FLAG_PERSISTABLE | ZCL_ATTR_FLAG_CB_WRITE, 0, colorLoopActAttrCbk, {0, 0}, {0, 0}
     },
     {
         ZCL_COLOR_ATTR_COLOR_LOOP_DIR, ZCL_DATATYPE_UNSIGNED_8BIT,
@@ -1176,5 +1177,18 @@ static void APP_ZIGBEE_ProcessRequestM0ToM4( ULONG argument )
 }
 
 /* USER CODE BEGIN FD_LOCAL_FUNCTIONS */
+enum ZclStatusCodeT colorLoopActAttrCbk(struct ZbZclClusterT* cluster, struct ZbZclAttrCbInfoT* info)
+{
+	switch(info->type)
+	{
+		case ZCL_ATTR_CB_TYPE_WRITE:
+    uint8_t act = *((uint8_t*)info->zcl_data);
+    APP_DBG("colorLoopActAttrCbk with data=%d", act);
+    break;
 
+		default:
+    return ZCL_STATUS_FAILURE;
+	}
+	return ZCL_STATUS_SUCCESS;
+}
 /* USER CODE END FD_LOCAL_FUNCTIONS */
