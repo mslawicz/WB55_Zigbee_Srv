@@ -121,7 +121,6 @@ void check_flags(ULONG flags)
         HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_RESET);  //XXX test
 		/* initiate action on next pass */
         tx_event_flags_set(&rgb_driver_flags, RGB_LVL_CHG_REQUEST, TX_OR);
-		RGB_params.isOn = FALSE;
     }
 
     if(flags & RGB_SWITCH_ON)
@@ -217,7 +216,7 @@ void RGB_mode_handler(void)
 		break;
 	}
 
-	if(isCyclic)
+	if((isCyclic == TRUE) && (RGB_params.isOn == TRUE))
 	{
 		/* the timer will trig the next pass of this function */
 		start_timer(&mode_timer, MODE_INTERVAL_TICKS);
@@ -284,6 +283,12 @@ void RGB_level_handler(void)
 	{
 		/* the level has been changed - refresh LEDs */
 		RGB_mode_handler();
+	}
+
+	if((RGB_params.currentLevel == 0) && (RGB_params.targetLevel == 0))
+	{
+		/* the device is off */
+		RGB_params.isOn = FALSE;
 	}
 }
 
