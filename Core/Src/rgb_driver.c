@@ -15,6 +15,8 @@
 #define LEVEL_CHANGE_INTERVAL_TICKS	MS_TO_TICKS(LEVEL_CHANGE_INTERVAL_MS)
 #define MODE_INTERVAL_MS	50
 #define MODE_INTERVAL_TICKS	MS_TO_TICKS(MODE_INTERVAL_MS)
+#define LVL_F	0xFF
+#define LVL_M	0x84
 
 TX_EVENT_FLAGS_GROUP rgb_driver_flags;
 
@@ -24,13 +26,13 @@ static const uint16_t GroupSize[NUMBER_OF_GROUPS] = { 1,1,1,1,1,1,1,1 };
 /* RGB color array for basic colors */
 static const uint8_t ColorPattern[7][3] =
 {
-		{255, 0, 0},    // red
-		{255, 255, 0},  // yellow
-		{0, 255, 0},    // green
-		{0, 255, 255},  // cyan
-		{0, 0, 255},    // blue
-		{255, 0, 255},  // fucsia
-		{255, 0, 0}     // red
+		{LVL_F, 0, 0},    // red
+		{LVL_M, LVL_M, 0},  // yellow
+		{0, LVL_F, 0},    // green
+		{0, LVL_M, LVL_M},  // cyan
+		{0, 0, LVL_F},    // blue
+		{LVL_M, 0, LVL_M},  // fucsia
+		{LVL_F, 0, 0}     // red
 };
 
 struct RGB_Params_t RGB_params =
