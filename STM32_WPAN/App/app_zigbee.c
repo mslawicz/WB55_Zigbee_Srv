@@ -1177,6 +1177,11 @@ static void APP_ZIGBEE_ProcessRequestM0ToM4( ULONG argument )
 }
 
 /* USER CODE BEGIN FD_LOCAL_FUNCTIONS */
+enum RGB_mode_t getRandomMode(void)
+{
+  return (enum RGB_mode_t)((rand() % (RGB_NUMBER_OF_MODES - 1)) + 1);
+} 
+
 enum ZclStatusCodeT colorLoopActAttrCbk(struct ZbZclClusterT* cluster, struct ZbZclAttrCbInfoT* info)
 {
 	switch(info->type)
@@ -1184,6 +1189,25 @@ enum ZclStatusCodeT colorLoopActAttrCbk(struct ZbZclClusterT* cluster, struct Zb
 		case ZCL_ATTR_CB_TYPE_WRITE:
     uint8_t act = *((uint8_t*)info->zcl_data);
     APP_DBG("colorLoopActAttrCbk with data=%d", act);
+
+    if(act == 0)
+    {
+      /* color loop off */
+      RGB_params.mode = RGB_MODE_STATIC;
+		  tx_event_flags_set(&rgb_driver_flags, RGB_ACTION_REQUEST, TX_OR);
+    }
+    else if(act == 2)
+    {
+      /* color loop on with random mode */
+      RGB_params.mode = getRandomMode();
+		  tx_event_flags_set(&rgb_driver_flags, RGB_ACTION_REQUEST, TX_OR);      
+    }
+    else if((act >= 3) && (act < (3 + RGB_NUMBER_OF_MODES)))
+    {
+      RGB_params.mode = (enum RGB_mode_t)(act + 2);
+		  tx_event_flags_set(&rgb_driver_flags, RGB_ACTION_REQUEST, TX_OR);      
+    }
+
     break;
 
 		default:
