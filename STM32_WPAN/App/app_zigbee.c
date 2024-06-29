@@ -1204,7 +1204,7 @@ enum ZclStatusCodeT colorLoopActAttrCbk(struct ZbZclClusterT* cluster, struct Zb
     }
     else if((act >= 3) && (act < (3 + RGB_NUMBER_OF_MODES)))
     {
-      RGB_params.mode = (enum RGB_mode_t)(act + 2);
+      RGB_params.mode = (enum RGB_mode_t)(act - 2);
 		  tx_event_flags_set(&rgb_driver_flags, RGB_ACTION_REQUEST, TX_OR);      
     }
 
