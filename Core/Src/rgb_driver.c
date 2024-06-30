@@ -67,7 +67,7 @@ void RGB_mode_handler(void);
 void RGB_level_handler(void);
 void level_change_timer_cbk(ULONG param);
 void set_level_transition_parameters(void);
-UINT start_timer(TX_TIMER *timer_ptr, ULONG initial_ticks);
+UINT start_timer(TX_TIMER *timer_ptr, ULONG initial_ticks, uint8_t deactivate);
 void RGB_cyclic_change(uint8_t use_groups, uint32_t noOfSteps);
 void mode_timer_cbk(ULONG param);
 void RGB_random_change(uint8_t use_groups, uint32_t noOfSteps);
@@ -221,7 +221,7 @@ void RGB_mode_handler(void)
 	if((isCyclic == TRUE) && (RGB_params.isOn == TRUE))
 	{
 		/* the timer will trig the next pass of this function */
-		start_timer(&mode_timer, MODE_INTERVAL_TICKS);
+		start_timer(&mode_timer, MODE_INTERVAL_TICKS, FALSE);
 	}
 }
 
@@ -273,7 +273,7 @@ void RGB_level_handler(void)
 		if(RGB_params.currentLevel != RGB_params.targetLevel)
 		{
 			/* not finished yet - request next pass */
-			UINT status = start_timer(&level_timer, LEVEL_CHANGE_INTERVAL_TICKS);
+			UINT status = start_timer(&level_timer, LEVEL_CHANGE_INTERVAL_TICKS, FALSE);
 			if(status != TX_SUCCESS)
 			{
 				Error_Handler();
@@ -582,18 +582,18 @@ void set_level_transition_parameters(void)
 	}
 }
 
-/* start one-shot timer with the given initial ticks */
-UINT start_timer(TX_TIMER *timer_ptr, ULONG initial_ticks)
+/* start one-shot timer with the given initial ticks with preceding deactivation option */
+UINT start_timer(TX_TIMER *timer_ptr, ULONG initial_ticks, uint8_t deactivate)
 {
 	UINT status;
+	if(deactivate == TRUE)
+	{
+		tx_timer_deactivate(timer_ptr);
+	}
 	status = tx_timer_change(timer_ptr, initial_ticks, 0);
 	if(status == TX_SUCCESS)
 	{
 		status = tx_timer_activate(timer_ptr);
-	}
-	else
-	{
-		status = status;
 	}
 	return status;
 }
