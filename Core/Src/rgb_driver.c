@@ -58,6 +58,7 @@ TX_TIMER level_timer;	/* timer for slow level changing */
 TX_TIMER mode_timer;	/* timer for cyclic modes handling */
 static volatile uint8_t RGB_DMA_busy = FALSE;
 static volatile uint8_t RGB_transfer_request = FALSE;
+TX_TIMER loop_timer;	/* timer for Zigbee activity indication */
 
 void check_flags(ULONG flags);
 void set_RGB_LEDs(uint16_t first, uint16_t size, struct RGB RGB_value, uint8_t level);
@@ -71,38 +72,44 @@ UINT start_timer(TX_TIMER *timer_ptr, ULONG initial_ticks, uint8_t deactivate);
 void RGB_cyclic_change(uint8_t use_groups, uint32_t noOfSteps);
 void mode_timer_cbk(ULONG param);
 void RGB_random_change(uint8_t use_groups, uint32_t noOfSteps);
+void loop_timer_cbk(ULONG param);
 
 void rgb_driver_thread_entry(ULONG thread_input)
 {
-  UNUSED(thread_input);
-  ULONG current_flags;
-  UINT ret_val;
+	UNUSED(thread_input);
+	ULONG current_flags;
+	UINT ret_val;
 
-  tx_event_flags_create(&rgb_driver_flags, "RGB driver flags");
-  ret_val = tx_timer_create(&level_timer, "level change timer", level_change_timer_cbk, 0, LEVEL_CHANGE_INTERVAL_TICKS, 0, TX_NO_ACTIVATE);
-  if(ret_val != TX_SUCCESS)
-  {
-	Error_Handler();
-  }
-  ret_val = tx_timer_create(&mode_timer, "RGB mode timer", mode_timer_cbk, 0, MODE_INTERVAL_TICKS, 0, TX_NO_ACTIVATE);
-  if(ret_val != TX_SUCCESS)
-  {
-	Error_Handler();
-  }  
-  /* clear all leds on startup */
-  turn_off_LEDs();
+	tx_event_flags_create(&rgb_driver_flags, "RGB driver flags");
+	ret_val = tx_timer_create(&level_timer, "level change timer", level_change_timer_cbk, 0, LEVEL_CHANGE_INTERVAL_TICKS, 0, TX_NO_ACTIVATE);
+	if(ret_val != TX_SUCCESS)
+	{
+		Error_Handler();
+	}
+	ret_val = tx_timer_create(&mode_timer, "RGB mode timer", mode_timer_cbk, 0, MODE_INTERVAL_TICKS, 0, TX_NO_ACTIVATE);
+	if(ret_val != TX_SUCCESS)
+	{
+		Error_Handler();
+	}  
+	ret_val = tx_timer_create(&loop_timer, "Loop activity timer", loop_timer_cbk, 0, 1, 0, TX_NO_ACTIVATE);
+	if(ret_val != TX_SUCCESS)
+	{
+		Error_Handler();
+	}  
+	/* clear all leds on startup */
+	turn_off_LEDs();
 
-  while (1)
-  {
-    ret_val = tx_event_flags_get(&rgb_driver_flags, 0xFFFFFFFF, TX_OR_CLEAR, &current_flags, TX_WAIT_FOREVER);
-    
-    if(ret_val == TX_SUCCESS)
-    {
-        check_flags(current_flags);
-    }
+	while (1)
+	{
+		ret_val = tx_event_flags_get(&rgb_driver_flags, 0xFFFFFFFF, TX_OR_CLEAR, &current_flags, TX_WAIT_FOREVER);
 
-    HAL_GPIO_TogglePin(LED_R_GPIO_Port, LED_R_Pin);	//XXX test
-  }
+		indicate_loop_activity(100);
+
+		if(ret_val == TX_SUCCESS)
+		{
+			check_flags(current_flags);
+		}
+	}
 }
 
 /* execute the desired action according to the set task event flags */
@@ -618,4 +625,16 @@ struct XY color_temperature_to_xy(uint16_t color_temperature)
 	color.x = (uint16_t)(-0.0498437f * color_temperature * color_temperature + 85.00335f * color_temperature + 9825.8252f);
 	color.y = (uint16_t)(-0.077899f * color_temperature * color_temperature + 61.150216f * color_temperature + 13583.311f);
 	return color;
+}
+
+void indicate_loop_activity(uint32_t milliseconds)
+{
+	HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, GPIO_PIN_SET);
+	start_timer(&loop_timer, MS_TO_TICKS(milliseconds), TRUE);
+}
+
+void loop_timer_cbk(ULONG param)
+{
+	UNUSED(param);
+	HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, GPIO_PIN_RESET);
 }

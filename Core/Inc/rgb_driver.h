@@ -58,5 +58,6 @@ extern uint32_t RGB_LED_Channel;
 extern void rgb_driver_thread_entry(ULONG thread_input);
 extern struct RGB convert_xy_to_RGB(struct XY color_xy);
 extern struct XY color_temperature_to_xy(uint16_t color_temperature);
+extern void indicate_loop_activity(uint32_t milliseconds);
 
 #endif /* __RGB_DRIVER_H */
