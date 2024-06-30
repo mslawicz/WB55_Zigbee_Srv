@@ -92,14 +92,6 @@ void rgb_driver_thread_entry(ULONG thread_input)
   /* clear all leds on startup */
   turn_off_LEDs();
 
-  // XXX test
-  //tx_thread_sleep(200);
-  //RGB_params.transitionTime = 30;	//3 seconds
-  //RGB_params.targetLevel = 30;
-  //RGB_params.mode = RGB_MODE_CYCLIC_GR_FAST;
-  //tx_event_flags_set(&rgb_driver_flags, RGB_SWITCH_ON, TX_OR);
-
-
   while (1)
   {
     ret_val = tx_event_flags_get(&rgb_driver_flags, 0xFFFFFFFF, TX_OR_CLEAR, &current_flags, TX_WAIT_FOREVER);
@@ -120,7 +112,6 @@ void check_flags(ULONG flags)
     {
 		RGB_params.targetLevel = 0;
 		set_level_transition_parameters();
-        HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_RESET);  //XXX test
 		/* initiate action on next pass */
         tx_event_flags_set(&rgb_driver_flags, RGB_LVL_CHG_REQUEST, TX_OR);
     }
@@ -129,7 +120,7 @@ void check_flags(ULONG flags)
     {
 		RGB_params.targetLevel = RGB_params.clientLevel;
 		set_level_transition_parameters();
-        HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_SET);  //XXX test
+        HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_SET);
 		/* initiate action on next pass */
 		tx_event_flags_set(&rgb_driver_flags, RGB_LVL_CHG_REQUEST, TX_OR);
 		RGB_params.isOn = TRUE;
@@ -291,6 +282,7 @@ void RGB_level_handler(void)
 	{
 		/* the device is off */
 		RGB_params.isOn = FALSE;
+		HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_RESET);
 	}
 }
 
